@@ -1,6 +1,6 @@
-<div align="center">
 
-# 🎓 ITPU Course Materials
+
+#  ITPU Course Materials
 
 ### Teaching resources, lecture notes, labs & assignments
 **IT Park University (ITPU) · Fergana, Uzbekistan**
@@ -12,11 +12,11 @@
 ![Maintained](https://img.shields.io/badge/Maintained-yes-brightgreen.svg)
 ![Courses](https://img.shields.io/badge/Courses-3-blue.svg)
 
-</div>
+
 
 ---
 
-## 📖 About
+##  About
 
 This repository is a single, well-structured home for the three undergraduate
 courses I teach at ITPU. Every course contains its own syllabus, lecture-by-lecture
@@ -30,7 +30,7 @@ computer science and machine learning education.
 
 ---
 
-## 📚 Courses
+##  Courses
 
 | # | Course | Level | Status |
 |---|--------|-------|--------|
@@ -66,7 +66,7 @@ itpu-course-materials/
 
 ---
 
-## 🧭 How to Navigate
+##  How to Navigate
 
 - **Students** → open the course you're enrolled in, start with its `README.md`,
   then read the `syllabus/`.
@@ -76,7 +76,7 @@ itpu-course-materials/
 
 ---
 
-## 🛠 Teaching Approach
+##  Teaching Approach
 
 These courses are designed around **active, interactive learning**. Each session
 combines:
@@ -93,7 +93,7 @@ for the principles behind it.
 
 ---
 
-## 🚀 Getting Started (for contributors)
+##  Getting Started (for contributors)
 
 New materials follow shared templates in [`docs/templates/`](./docs/templates/):
 
@@ -115,7 +115,7 @@ their own respective licenses.
 
 ---
 
-## 👩‍🏫 Author
+## Author
 
 **Dilrabo Khidirova**
 Senior Lecturer in Machine Learning · IT Park University (ITPU), Fergana, Uzbekistan
