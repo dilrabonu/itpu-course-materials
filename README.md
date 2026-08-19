@@ -62,3 +62,65 @@ itpu-course-materials/
 ├── assets/ # Repo-wide images
 ├── scripts/ # Helper scripts (optional)
 └── .github/ # Issue & PR templates
+
+
+---
+
+## 🧭 How to Navigate
+
+- **Students** → open the course you're enrolled in, start with its `README.md`,
+  then read the `syllabus/`.
+- **Each lecture** lives in `lectures/` with notes, examples, and links to
+  interactive tools.
+- **Labs & assignments** are numbered to match the lecture schedule.
+
+---
+
+## 🛠 Teaching Approach
+
+These courses are designed around **active, interactive learning**. Each session
+combines:
+
+- Clear objectives and a recap at the start
+- Visual teaching aids (slides, infographics, diagrams)
+- Live interactive demos and hands-on coding
+- Real-world, locally relevant examples
+- Open discussion, Q&A, and an end-of-session summary
+
+See [`docs/facilitator-guide.md`](./docs/facilitator-guide.md) for the full
+facilitation framework, and [`docs/teaching-philosophy.md`](./docs/teaching-philosophy.md)
+for the principles behind it.
+
+---
+
+## 🚀 Getting Started (for contributors)
+
+New materials follow shared templates in [`docs/templates/`](./docs/templates/):
+
+1. Copy the relevant template (`lecture-template.md`, `lab-template.md`, or
+   `assignment-template.md`).
+2. Place it in the correct course folder and fill in every section.
+3. Link it from that course's `README.md`.
+
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for branch naming and commit conventions,
+and [`docs/SETUP-GITHUB.md`](./docs/SETUP-GITHUB.md) for repository setup.
+
+---
+
+## 📄 License
+
+Course materials are released under the [MIT License](./LICENSE) unless stated
+otherwise. Third-party materials (datasets, images, referenced papers) remain under
+their own respective licenses.
+
+---
+
+## 👩‍🏫 Author
+
+**Dilrabo Khidirova**
+Senior Lecturer in Machine Learning · IT Park University (ITPU), Fergana, Uzbekistan
+
+ML Engineer & AI Researcher — trustworthy & explainable AI, uncertainty
+quantification, calibration-aware model selection, and low-resource language
+fairness. Advocate for women in tech in Central Asia.
+
