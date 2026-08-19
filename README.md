@@ -1,4 +1,4 @@
-
+<div align="center">
 
 #  ITPU Course Materials
 
@@ -123,4 +123,8 @@ Senior Lecturer in Machine Learning · IT Park University (ITPU), Fergana, Uzbek
 ML Engineer & AI Researcher — trustworthy & explainable AI, uncertainty
 quantification, calibration-aware model selection, and low-resource language
 fairness. Advocate for women in tech in Central Asia.
+
+<div align="center">
+<sub>Built with care for students at ITPU 💙</sub>
+</div>
 
