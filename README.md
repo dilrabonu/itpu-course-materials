@@ -44,3 +44,21 @@ Each course folder follows the same predictable layout — see
 ---
 
 ## 🗂 Repository Structure
+
+itpu-course-materials/
+├── courses/
+│ ├── 01-introduction-to-speciality/
+│ ├── 02-introduction-to-digital-technologies/
+│ └── 03-introduction-to-machine-learning/
+│ ├── README.md # Course overview & navigation
+│ ├── syllabus/ # Full syllabus, schedule, grading
+│ ├── lectures/ # One file per lecture
+│ ├── labs/ # Hands-on practical sessions
+│ ├── assignments/ # Homework, projects, rubrics
+│ ├── resources/ # Readings, links, datasets
+│ └── assets/ # Images, diagrams, slides
+├── docs/ # Teaching philosophy, facilitator guide, templates
+├── shared-resources/ # Material reused across courses
+├── assets/ # Repo-wide images
+├── scripts/ # Helper scripts (optional)
+└── .github/ # Issue & PR templates
