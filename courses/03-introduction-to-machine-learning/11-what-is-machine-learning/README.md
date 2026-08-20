@@ -12,3 +12,7 @@ https://excalidraw.com/
 ![alt text](image.png)
 
 ![alt text](image-1.png)
+
+
+Resources:
+https://www.databricks.com/blog/machine-learning
