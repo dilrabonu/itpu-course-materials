@@ -3,3 +3,6 @@ https://www.mentimeter.com/app/presentation/algci2hech7kng3v2bx7yj318kbv1afp/edi
 
 Category warm up
 file:///C:/Users/user/Downloads/number-or-category.html  
+
+
+Supervised regression vs classification
