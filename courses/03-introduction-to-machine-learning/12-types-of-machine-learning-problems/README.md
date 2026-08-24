@@ -17,3 +17,6 @@ https://excalidraw.com/
 
 Kahoot
 https://create.kahoot.it/my-library/kahoots/a73fb07a-b955-498b-9531-649b2442a1cf 
+
+Case study
+Coding:
