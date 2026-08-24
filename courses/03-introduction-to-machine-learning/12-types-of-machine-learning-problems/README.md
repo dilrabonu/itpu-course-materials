@@ -14,3 +14,6 @@ https://excalidraw.com/#json=DHI5JTtSY5y9isQFkaHUS,zBiigy8645Cf2jdlyZRCvQ
 https://excalidraw.com/#json=DHI5JTtSY5y9isQFkaHUS,zBiigy8645Cf2jdlyZRCvQ
 
 https://excalidraw.com/
+
+Kahoot
+https://create.kahoot.it/my-library/kahoots/a73fb07a-b955-498b-9531-649b2442a1cf 
