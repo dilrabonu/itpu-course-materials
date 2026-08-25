@@ -12,3 +12,5 @@ https://excalidraw.com/#json=gWXH571Ujm1QmXMSRp_Ss,w1wOR8fp4fYCATL8gOMGTA
 
 https://excalidraw.com/
 
+Overfitting underfitting
+file:///C:/Users/user/Downloads/bias-variance-explorer.html
