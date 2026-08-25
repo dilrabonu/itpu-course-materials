@@ -17,3 +17,8 @@ file:///C:/Users/user/Downloads/bias-variance-explorer.html
 
 SHAP:
 file:///C:/Users/user/Downloads/shap-explorer.html 
+
+
+Task:
+https://miro.com/app/board/uXjVHuyI1Ps=/ 
+
