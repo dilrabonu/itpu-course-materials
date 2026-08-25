@@ -14,3 +14,6 @@ https://excalidraw.com/
 
 Overfitting underfitting
 file:///C:/Users/user/Downloads/bias-variance-explorer.html
+
+SHAP:
+file:///C:/Users/user/Downloads/shap-explorer.html 
