@@ -20,3 +20,10 @@ https://create.kahoot.it/my-library/kahoots/a73fb07a-b955-498b-9531-649b2442a1cf
 
 Case study
 Coding:
+https://colab.research.google.com/drive/1T595Irq0lInDqIiSQXg5rB8KfFL5K00s#scrollTo=v2zuu8iIwCou
+
+
+Classifying:
+
+https://excalidraw.com/#json=d78CEOyF6JWiDz2RpbiCN,QTGKcQ8DDSd7ir_hk-br5A
+
