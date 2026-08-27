@@ -13,7 +13,7 @@ file:///C:/Users/user/Downloads/cross-validation-visualizer.html
 
 
 Metrics Wooclap
-
+https://app.wooclap.com/events/GBNJUGS/live-session 
 
 Miro sort
 
