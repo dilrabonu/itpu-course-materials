@@ -20,3 +20,10 @@ Miro sort
 coding
 
 Warp up
+
+Resources
+
+https://christophm.github.io/interpretable-ml-book/
+
+
+https://developers.google.com/machine-learning/crash-course 
