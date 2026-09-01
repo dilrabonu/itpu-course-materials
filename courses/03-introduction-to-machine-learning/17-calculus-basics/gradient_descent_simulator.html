@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradient Descent Simulator — Topic 7</title>
+<style>
+  :root{
+    --ink:#0F2C4C; --paper:#FFFFFF; --mist:#EAF1F8;
+    --primary:#2F6FED; --primary-dark:#1E4FB8;
+    --accent:#FF6B4A; --good:#12B886; --warn:#E8590C;
+    --grid:#D9E3F0; --muted:#5B6B7F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI',Calibri,Arial,sans-serif;
+    background:linear-gradient(160deg,#F4F8FE 0%,#E7EEF9 100%);
+    color:var(--ink); padding:18px;
+  }
+  h1{font-size:22px; margin:0 0 2px 0;}
+  .sub{color:var(--muted); font-size:13px; margin:0 0 14px 0;}
+  .wrap{display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start;}
+  .panel{
+    background:var(--paper); border-radius:16px; padding:18px;
+    box-shadow:0 6px 24px rgba(20,50,90,.10);
+  }
+  .canvas-panel{flex:1 1 560px; min-width:340px;}
+  .controls{flex:0 0 300px; min-width:280px;}
+  canvas{width:100%; height:auto; display:block; border-radius:10px;}
+  label{display:block; font-size:13px; font-weight:600; margin:14px 0 4px;}
+  .val{color:var(--primary); font-weight:700;}
+  input[type=range]{width:100%; accent-color:var(--primary);}
+  select{width:100%; padding:8px; border-radius:8px; border:1px solid var(--grid);
+    font-size:14px; color:var(--ink); background:#fff;}
+  .btnrow{display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;}
+  button{
+    flex:1; padding:11px 10px; border:none; border-radius:10px; cursor:pointer;
+    font-size:14px; font-weight:700; color:#fff; background:var(--primary);
+    transition:transform .05s, background .2s; min-width:80px;
+  }
+  button:hover{background:var(--primary-dark);}
+  button:active{transform:scale(.97);}
+  button.ghost{background:var(--mist); color:var(--ink);}
+  button.step{background:var(--accent);}
+  button.step:hover{background:#e8552f;}
+  .readout{margin-top:16px; padding:12px 14px; background:var(--mist);
+    border-radius:12px; font-size:14px; line-height:1.7;}
+  .readout b{color:var(--primary-dark);}
+  .status{margin-top:12px; padding:10px 14px; border-radius:12px; font-weight:700;
+    font-size:14px; text-align:center;}
+  .status.converge{background:#E3FBF1; color:var(--good);}
+  .status.diverge{background:#FFEDE6; color:var(--warn);}
+  .status.working{background:#FFF4E6; color:#B9770E;}
+  .eqn{font-family:'Cambria Math',Cambria,serif; font-style:italic;}
+  .legend{display:flex; gap:16px; font-size:12px; color:var(--muted); margin-top:10px; flex-wrap:wrap;}
+  .dot{display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:middle;}
+  .hint{font-size:12px; color:var(--muted); margin-top:6px; font-style:italic;}
+</style>
+</head>
+<body>
+  <h1>⛰️ Gradient Descent Simulator</h1>
+  <p class="sub">Watch the ball roll downhill. Change the learning rate and see what happens.</p>
+  <div class="wrap">
+    <div class="panel canvas-panel">
+      <canvas id="cv" width="720" height="440"></canvas>
+      <div class="legend">
+        <span><span class="dot" style="background:#2F6FED"></span>Loss curve f(x)</span>
+        <span><span class="dot" style="background:#FF6B4A"></span>Current position</span>
+        <span><span class="dot" style="background:#12B886"></span>True minimum</span>
+        <span><span class="dot" style="background:#9AA7B8"></span>Step history</span>
+      </div>
+    </div>
+
+    <div class="panel controls">
+      <label>Loss function</label>
+      <select id="fn">
+        <option value="parabola">f(x) = (x − 3)²  (simple bowl)</option>
+        <option value="shifted">f(x) = x² + 2  (bowl at 0)</option>
+        <option value="wavy">f(x) = x²/8 + sin(x)·2  (local minima!)</option>
+      </select>
+
+      <label>Learning rate α = <span class="val" id="lrVal">0.10</span></label>
+      <input type="range" id="lr" min="0.01" max="1.20" step="0.01" value="0.10">
+      <div class="hint">Try 0.1 → smooth · 0.5 → fast · 0.9 → wobble · &gt;1.0 → explode</div>
+
+      <label>Starting point x₀ = <span class="val" id="x0Val">8.0</span></label>
+      <input type="range" id="x0" min="-9" max="9" step="0.5" value="8">
+
+      <div class="btnrow">
+        <button class="step" id="stepBtn">▶ One Step</button>
+        <button id="runBtn">⏩ Auto-Run</button>
+      </div>
+      <div class="btnrow">
+        <button class="ghost" id="resetBtn">↺ Reset</button>
+      </div>
+
+      <div class="readout" id="readout"></div>
+      <div class="status working" id="status">Ready — press One Step</div>
+    </div>
+  </div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height, pad=44;
+const xmin=-10, xmax=10;
+
+const funcs={
+  parabola:{ f:x=>(x-3)**2,      df:x=>2*(x-3),        min:3,  ymax:120 },
+  shifted: { f:x=>x*x+2,          df:x=>2*x,            min:0,  ymax:110 },
+  wavy:    { f:x=>x*x/8+Math.sin(x)*2, df:x=>x/4+2*Math.cos(x), min:-1.9, ymax:16 }
+};
+
+let state={};
+function reset(){
+  const fn=document.getElementById('fn').value;
+  state={
+    fn, x:parseFloat(document.getElementById('x0').value),
+    lr:parseFloat(document.getElementById('lr').value),
+    history:[], steps:0, running:false, done:false
+  };
+  state.history.push(state.x);
+  document.getElementById('status').className='status working';
+  document.getElementById('status').textContent='Ready — press One Step';
+  draw(); updateReadout();
+}
+const F=()=>funcs[state.fn];
+const sx=x=>pad+(x-xmin)/(xmax-xmin)*(W-2*pad);
+const sy=y=>H-pad-(y/F().ymax)*(H-2*pad);
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='#EAF1F8'; ctx.lineWidth=1;
+  for(let gx=xmin;gx<=xmax;gx+=2){ctx.beginPath();ctx.moveTo(sx(gx),pad);ctx.lineTo(sx(gx),H-pad);ctx.stroke();}
+  // axes
+  ctx.strokeStyle='#C4D2E4'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);ctx.stroke();
+  ctx.fillStyle='#5B6B7F'; ctx.font='12px Segoe UI';
+  for(let gx=xmin;gx<=xmax;gx+=2){ctx.fillText(gx,sx(gx)-6,H-pad+16);}
+  ctx.fillText('x',W-pad+8,H-pad+4); ctx.fillText('loss',pad-30,pad-4);
+  // curve
+  ctx.strokeStyle='#2F6FED'; ctx.lineWidth=3; ctx.beginPath();
+  let first=true;
+  for(let px=pad;px<=W-pad;px++){
+    const x=xmin+(px-pad)/(W-2*pad)*(xmax-xmin);
+    const y=F().f(x); const py=sy(Math.min(y,F().ymax));
+    if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+  // true min
+  const mx=F().min;
+  ctx.fillStyle='#12B886';
+  ctx.beginPath();ctx.arc(sx(mx),sy(F().f(mx)),7,0,7);ctx.fill();
+  // history trail
+  for(let i=0;i<state.history.length;i++){
+    const x=state.history[i];
+    ctx.fillStyle='rgba(154,167,184,'+(0.35+0.5*i/state.history.length)+')';
+    ctx.beginPath();ctx.arc(sx(x),sy(Math.min(F().f(x),F().ymax)),4,0,7);ctx.fill();
+    if(i>0){
+      ctx.strokeStyle='rgba(154,167,184,.5)';ctx.lineWidth=1.2;ctx.beginPath();
+      ctx.moveTo(sx(state.history[i-1]),sy(Math.min(F().f(state.history[i-1]),F().ymax)));
+      ctx.lineTo(sx(x),sy(Math.min(F().f(x),F().ymax)));ctx.stroke();
+    }
+  }
+  // current point + tangent
+  const x=state.x, y=F().f(x), slope=F().df(x);
+  if(Math.abs(y)<=F().ymax*1.3){
+    // tangent line
+    ctx.strokeStyle='rgba(255,107,74,.55)';ctx.lineWidth=2;
+    const dx=1.6;ctx.beginPath();
+    ctx.moveTo(sx(x-dx),sy(y-slope*dx));ctx.lineTo(sx(x+dx),sy(y+slope*dx));ctx.stroke();
+    // point
+    ctx.fillStyle='#FF6B4A';ctx.beginPath();ctx.arc(sx(x),sy(Math.min(y,F().ymax)),9,0,7);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx(x),sy(Math.min(y,F().ymax)),3.5,0,7);ctx.fill();
+  }
+}
+
+function updateReadout(){
+  const x=state.x, y=F().f(x), g=F().df(x);
+  document.getElementById('readout').innerHTML=
+    `<b>Step ${state.steps}</b><br>`+
+    `x = <b>${x.toFixed(3)}</b> &nbsp; loss = <b>${y.toFixed(3)}</b><br>`+
+    `gradient f′(x) = <b>${g.toFixed(3)}</b><br>`+
+    `<span class="eqn">x ← x − α·f′(x)</span><br>`+
+    `x ← ${x.toFixed(2)} − ${state.lr.toFixed(2)}×${g.toFixed(2)} = <b>${(x-state.lr*g).toFixed(3)}</b>`;
+}
+
+function step(){
+  if(state.done) return;
+  const g=F().df(state.x);
+  const nx=state.x - state.lr*g;
+  state.x=nx; state.steps++; state.history.push(nx);
+  if(state.history.length>60) state.history.shift();
+  // status
+  const st=document.getElementById('status');
+  if(Math.abs(nx)>50 || !isFinite(nx)){
+    st.className='status diverge'; st.textContent='💥 DIVERGED! α too large — overshooting';
+    state.done=true; state.running=false;
+  } else if(Math.abs(g)<0.02){
+    st.className='status converge'; st.textContent='✅ CONVERGED at minimum!';
+    state.done=true; state.running=false;
+  } else {
+    st.className='status working'; st.textContent='⏳ Descending... gradient = '+g.toFixed(3);
+  }
+  draw(); updateReadout();
+}
+
+function autoRun(){
+  if(state.running){state.running=false;document.getElementById('runBtn').textContent='⏩ Auto-Run';return;}
+  state.running=true; document.getElementById('runBtn').textContent='⏸ Pause';
+  const tick=()=>{
+    if(!state.running||state.done){document.getElementById('runBtn').textContent='⏩ Auto-Run';state.running=false;return;}
+    step(); setTimeout(tick,450);
+  };
+  tick();
+}
+
+document.getElementById('lr').oninput=e=>{document.getElementById('lrVal').textContent=parseFloat(e.target.value).toFixed(2);state.lr=parseFloat(e.target.value);};
+document.getElementById('x0').oninput=e=>{document.getElementById('x0Val').textContent=parseFloat(e.target.value).toFixed(1);reset();};
+document.getElementById('fn').onchange=reset;
+document.getElementById('stepBtn').onclick=step;
+document.getElementById('runBtn').onclick=autoRun;
+document.getElementById('resetBtn').onclick=reset;
+reset();
+</script>
+</body>
+</html>
