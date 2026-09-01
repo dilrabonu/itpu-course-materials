@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central Limit Theorem Simulator — Topic 8</title>
+<style>
+  :root{
+    --ink:#231942; --paper:#FFFFFF; --mist:#F0ECF7;
+    --primary:#7B2CBF; --primary-dark:#5A189A; --accent:#F4A259;
+    --good:#2A9D8F; --pop:#E76F51; --muted:#6B6480; --grid:#E4DCF0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Calibri,Arial,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,#F7F3FC,#EEE6F8);padding:18px;}
+  h1{font-size:22px;margin:0 0 2px;}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px;}
+  .wrap{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  .panel{background:var(--paper);border-radius:16px;padding:18px;box-shadow:0 6px 24px rgba(35,25,66,.10);}
+  .canvas-panel{flex:1 1 560px;min-width:340px;}
+  .controls{flex:0 0 290px;min-width:270px;}
+  canvas{width:100%;height:auto;display:block;border-radius:10px;}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 4px;}
+  .val{color:var(--primary);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--primary);}
+  select{width:100%;padding:8px;border-radius:8px;border:1px solid var(--grid);font-size:14px;color:var(--ink);background:#fff;}
+  .btnrow{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+  button{flex:1;padding:11px 10px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;color:#fff;background:var(--primary);transition:transform .05s,background .2s;min-width:80px;}
+  button:hover{background:var(--primary-dark);}
+  button:active{transform:scale(.97);}
+  button.ghost{background:var(--mist);color:var(--ink);}
+  button.big{background:var(--accent);color:#231942;}
+  button.big:hover{background:#eb9040;}
+  .readout{margin-top:16px;padding:12px 14px;background:var(--mist);border-radius:12px;font-size:13.5px;line-height:1.7;}
+  .readout b{color:var(--primary-dark);}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap;}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:middle;}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px;font-style:italic;}
+  .big-stat{font-size:15px;text-align:center;margin-top:8px;padding:8px;background:#E7F6F4;border-radius:10px;color:var(--good);font-weight:700;}
+</style>
+</head>
+<body>
+  <h1>📊 Central Limit Theorem Simulator</h1>
+  <p class="sub">Take samples from ANY weird distribution. Watch the averages form a bell curve.</p>
+  <div class="wrap">
+    <div class="panel canvas-panel">
+      <canvas id="src" width="720" height="180"></canvas>
+      <div class="legend"><span><span class="dot" style="background:#7B2CBF"></span>Source distribution (the raw population)</span></div>
+      <canvas id="means" width="720" height="230" style="margin-top:10px"></canvas>
+      <div class="legend">
+        <span><span class="dot" style="background:#F4A259"></span>Distribution of sample means</span>
+        <span><span class="dot" style="background:#2A9D8F"></span>Normal curve (for comparison)</span>
+      </div>
+    </div>
+    <div class="panel controls">
+      <label>Source distribution</label>
+      <select id="dist">
+        <option value="uniform">Uniform (flat)</option>
+        <option value="skew">Right-skewed (exponential-like)</option>
+        <option value="bimodal">Bimodal (two humps)</option>
+        <option value="dice">Single die (1–6)</option>
+      </select>
+      <label>Sample size n = <span class="val" id="nVal">5</span></label>
+      <input type="range" id="n" min="1" max="50" step="1" value="5">
+      <div class="hint">Bigger n → tighter, more perfect bell.</div>
+      <div class="btnrow">
+        <button id="one">+1 sample</button>
+        <button id="ten">+10</button>
+      </div>
+      <div class="btnrow">
+        <button class="big" id="hundred">⏩ +500 fast</button>
+      </div>
+      <div class="btnrow">
+        <button class="ghost" id="reset">↺ Reset</button>
+      </div>
+      <div class="readout" id="readout"></div>
+      <div class="big-stat" id="verdict">Draw samples to begin</div>
+    </div>
+  </div>
+<script>
+const srcC=document.getElementById('src'),sx=srcC.getContext('2d');
+const meanC=document.getElementById('means'),mx=meanC.getContext('2d');
+let means=[],n=5,dist='uniform';
+
+function draw1(){ // sample one value from chosen dist, range ~[0,1]
+  if(dist==='uniform') return Math.random();
+  if(dist==='skew'){let u=-Math.log(1-Math.random())/3;return Math.min(u,1);}
+  if(dist==='bimodal'){return Math.random()<0.5?Math.random()*0.35:0.65+Math.random()*0.35;}
+  if(dist==='dice'){return (Math.floor(Math.random()*6)+1)/6 - 1/12;} // center bins
+  return Math.random();
+}
+function sampleMean(){let s=0;for(let i=0;i<n;i++)s+=draw1();return s/n;}
+
+function drawSource(){
+  sx.clearRect(0,0,720,180);
+  // build histogram of source by sampling many
+  const bins=new Array(40).fill(0);let N=8000;
+  for(let i=0;i<N;i++){let v=draw1();let b=Math.min(39,Math.max(0,Math.floor(v*40)));bins[b]++;}
+  const mxv=Math.max(...bins);
+  sx.fillStyle='#7B2CBF';
+  for(let b=0;b<40;b++){const h=bins[b]/mxv*150;sx.fillRect(20+b*17.4,170-h,15,h);}
+  sx.fillStyle='#6B6480';sx.font='12px Segoe UI';sx.fillText('the raw population you sample from',20,15);
+}
+
+function drawMeans(){
+  mx.clearRect(0,0,720,230);
+  const bins=new Array(40).fill(0);
+  means.forEach(m=>{let b=Math.min(39,Math.max(0,Math.floor(m*40)));bins[b]++;});
+  const mxv=Math.max(...bins,1);
+  mx.fillStyle='#F4A259';
+  for(let b=0;b<40;b++){const h=bins[b]/mxv*175;mx.fillRect(20+b*17.4,200-h,15,h);}
+  // overlay normal curve using mean/std of collected means
+  if(means.length>5){
+    const mu=means.reduce((a,b)=>a+b,0)/means.length;
+    const sd=Math.sqrt(means.reduce((a,b)=>a+(b-mu)**2,0)/means.length)||0.01;
+    mx.strokeStyle='#2A9D8F';mx.lineWidth=3;mx.beginPath();
+    for(let px=20;px<=716;px++){
+      const xv=(px-20)/696;
+      const y=Math.exp(-((xv-mu)**2)/(2*sd*sd));
+      const py=200-y*175;
+      if(px===20)mx.moveTo(px,py);else mx.lineTo(px,py);
+    }
+    mx.stroke();
+  }
+  mx.fillStyle='#6B6480';mx.font='12px Segoe UI';mx.fillText('each bar = how often a sample AVERAGE landed here',20,15);
+}
+
+function update(){
+  document.getElementById('readout').innerHTML=
+    `<b>${means.length}</b> samples drawn, each of size n=<b>${n}</b>`+
+    (means.length?`<br>mean of means = <b>${(means.reduce((a,b)=>a+b,0)/means.length).toFixed(3)}</b>`:'');
+  const v=document.getElementById('verdict');
+  if(means.length<30)v.textContent='Keep going — need more samples';
+  else v.innerHTML='🔔 A bell curve emerges — no matter the source!';
+  drawMeans();
+}
+function add(k){for(let i=0;i<k;i++)means.push(sampleMean());update();}
+
+document.getElementById('dist').onchange=e=>{dist=e.target.value;means=[];drawSource();update();};
+document.getElementById('n').oninput=e=>{n=+e.target.value;document.getElementById('nVal').textContent=n;means=[];update();};
+document.getElementById('one').onclick=()=>add(1);
+document.getElementById('ten').onclick=()=>add(10);
+document.getElementById('hundred').onclick=()=>add(500);
+document.getElementById('reset').onclick=()=>{means=[];update();};
+drawSource();update();
+</script>
+</body>
+</html>
