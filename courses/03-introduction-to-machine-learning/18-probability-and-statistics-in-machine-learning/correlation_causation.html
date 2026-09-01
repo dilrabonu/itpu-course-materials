@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Correlation ≠ Causation Explorer</title>
+<style>
+  :root{--ink:#231942;--paper:#FFFFFF;--mist:#F0ECF7;--primary:#7B2CBF;--primary-dark:#5A189A;
+    --pop:#E76F51;--good:#2A9D8F;--accent:#F4A259;--muted:#6B6480;--grid:#E4DCF0;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Calibri,Arial,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,#F7F3FC,#EEE6F8);padding:18px;}
+  h1{font-size:22px;margin:0 0 2px;}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px;}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .tabs button{padding:9px 14px;border:2px solid var(--grid);border-radius:20px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);}
+  .tabs button.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .wrap{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  .panel{background:var(--paper);border-radius:16px;padding:18px;box-shadow:0 6px 24px rgba(35,25,66,.10);}
+  .chart{flex:1 1 520px;min-width:320px;}
+  .side{flex:0 0 300px;min-width:280px;}
+  canvas{width:100%;height:auto;display:block;border-radius:10px;}
+  .corr{font-size:15px;margin-top:10px;padding:8px 12px;background:var(--mist);border-radius:10px;}
+  .corr b{color:var(--pop);font-size:18px;}
+  h3{margin:0 0 8px;font-size:17px;color:var(--primary-dark);}
+  .real{background:#E7F6F4;border-radius:12px;padding:14px;margin-top:6px;}
+  .real h4{margin:0 0 6px;color:var(--good);font-size:13px;text-transform:uppercase;letter-spacing:.5px;}
+  .real p{margin:0;font-size:14px;line-height:1.6;}
+  .lurk{background:#FFF3E6;border-radius:12px;padding:14px;margin-top:10px;}
+  .lurk h4{margin:0 0 6px;color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:.5px;}
+  .lurk p{margin:0;font-size:14px;line-height:1.6;}
+  .reveal{margin-top:10px;width:100%;padding:11px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer;font-size:14px;}
+  .reveal:hover{background:var(--primary-dark);}
+</style>
+</head>
+<body>
+  <h1>🔗 Correlation ≠ Causation</h1>
+  <p class="sub">Two things move together. Does one CAUSE the other — or is something hidden pulling both?</p>
+  <div class="tabs" id="tabs"></div>
+  <div class="wrap">
+    <div class="panel chart">
+      <canvas id="cv" width="640" height="380"></canvas>
+      <div class="corr">Correlation r = <b id="r">—</b> <span style="color:var(--muted);font-size:13px">(close to ±1 = strong linear relationship)</span></div>
+    </div>
+    <div class="side panel">
+      <h3 id="title"></h3>
+      <div class="real"><h4>What the data shows</h4><p id="shows"></p></div>
+      <button class="reveal" id="revBtn">🔍 Reveal the real story</button>
+      <div class="lurk" id="lurk" style="display:none"><h4 id="lurkH"></h4><p id="lurkP"></p></div>
+    </div>
+  </div>
+<script>
+const cases=[
+  {name:"🍦 Ice cream & drownings",title:"Ice cream sales vs drownings",
+   shows:"Months with more ice cream sales have far more drownings. r is very high.",
+   lurkH:"Lurking variable: summer heat",
+   lurkP:"Hot weather drives BOTH — people buy ice cream AND go swimming. Ice cream doesn't cause drowning; temperature is the hidden common cause.",
+   r:0.92,gen:(i)=>{let t=Math.random();return [t*10+Math.random(), t*10+Math.random()*1.5];}},
+  {name:"👟 Shoe size & reading",title:"Children's shoe size vs reading skill",
+   shows:"Kids with bigger shoes read better. Strong positive correlation.",
+   lurkH:"Lurking variable: age",
+   lurkP:"Older children have bigger feet AND read better. Age drives both. Buying big shoes won't make a child read.",
+   r:0.88,gen:(i)=>{let a=Math.random();return [a*10+Math.random(),a*10+Math.random()*1.8];}},
+  {name:"🔥 Fire trucks & damage",title:"Fire trucks sent vs damage cost",
+   shows:"More fire trucks at a scene → more damage. Positive correlation.",
+   lurkH:"Reverse & confound: fire size",
+   lurkP:"Bigger fires cause more damage AND get more trucks sent. The trucks don't cause the damage — the fire's size drives both.",
+   r:0.85,gen:(i)=>{let f=Math.random();return [f*10+Math.random()*1.5,f*10+Math.random()*1.5];}},
+  {name:"🎲 Pure coincidence",title:"Two unrelated trends",
+   shows:"These two lines track each other almost perfectly over 10 years.",
+   lurkH:"No mechanism at all",
+   lurkP:"With enough variables, some will correlate by pure chance (spurious correlation). High r with no causal link and no common cause — just coincidence.",
+   r:0.95,gen:(i)=>{let t=i/40;return [t*10+Math.sin(i)*0.6, t*10+Math.sin(i)*0.6+Math.random()*0.4];}}
+];
+const cv=document.getElementById('cv'),c=cv.getContext('2d');
+let cur=0,pts=[];
+const tabs=document.getElementById('tabs');
+cases.forEach((cs,i)=>{const b=document.createElement('button');b.textContent=cs.name;b.className=i===0?'active':'';b.onclick=()=>{cur=i;render();};tabs.appendChild(b);});
+
+function render(){
+  [...tabs.children].forEach((b,i)=>b.className=i===cur?'active':'');
+  const cs=cases[cur];pts=[];for(let i=0;i<40;i++)pts.push(cs.gen(i));
+  // draw scatter
+  c.clearRect(0,0,640,380);
+  c.strokeStyle='#E4DCF0';c.lineWidth=1;
+  for(let g=0;g<=10;g++){c.beginPath();c.moveTo(50+g*57,20);c.lineTo(50+g*57,340);c.stroke();c.beginPath();c.moveTo(50,20+g*32);c.lineTo(620,20+g*32);c.stroke();}
+  c.strokeStyle='#C9BEDD';c.lineWidth=1.5;c.beginPath();c.moveTo(50,340);c.lineTo(620,340);c.stroke();c.beginPath();c.moveTo(50,20);c.lineTo(50,340);c.stroke();
+  c.fillStyle='#6B6480';c.font='12px Segoe UI';c.textAlign='center';c.fillText('Variable A',335,368);
+  c.save();c.translate(20,180);c.rotate(-Math.PI/2);c.fillText('Variable B',0,0);c.restore();
+  c.fillStyle='#7B2CBF';
+  pts.forEach(pt=>{const x=50+pt[0]/11*570,y=340-pt[1]/11*320;c.beginPath();c.arc(x,y,5,0,7);c.fill();});
+  document.getElementById('r').textContent=cs.r.toFixed(2);
+  document.getElementById('title').textContent=cs.title;
+  document.getElementById('shows').textContent=cs.shows;
+  document.getElementById('lurkH').textContent=cs.lurkH;
+  document.getElementById('lurkP').textContent=cs.lurkP;
+  document.getElementById('lurk').style.display='none';
+  document.getElementById('revBtn').textContent='🔍 Reveal the real story';
+}
+document.getElementById('revBtn').onclick=()=>{const l=document.getElementById('lurk');const shown=l.style.display==='block';l.style.display=shown?'none':'block';document.getElementById('revBtn').textContent=shown?'🔍 Reveal the real story':'Hide';};
+render();
+</script>
+</body>
+</html>
