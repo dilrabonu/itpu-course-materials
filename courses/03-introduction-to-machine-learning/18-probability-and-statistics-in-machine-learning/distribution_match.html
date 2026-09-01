@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Name That Distribution — Self-Check</title>
+<style>
+  :root{--ink:#231942;--paper:#FFFFFF;--mist:#F0ECF7;--primary:#7B2CBF;--primary-dark:#5A189A;
+    --good:#2A9D8F;--pop:#E76F51;--accent:#F4A259;--muted:#6B6480;--grid:#E4DCF0;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Calibri,Arial,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,#F7F3FC,#EEE6F8);padding:20px;}
+  h1{font-size:22px;margin:0 0 2px;}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 16px;}
+  .board{display:flex;gap:22px;flex-wrap:wrap;}
+  .col{flex:1 1 340px;min-width:300px;}
+  .col h3{font-size:14px;text-transform:uppercase;letter-spacing:.5px;color:var(--primary-dark);margin:0 0 10px;}
+  .scenario{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 3px 12px rgba(35,25,66,.08);
+    border-left:5px solid var(--grid);}
+  .scenario .q{font-size:14.5px;font-weight:600;margin-bottom:8px;}
+  .opts{display:flex;gap:6px;flex-wrap:wrap;}
+  .opts button{padding:6px 11px;border:2px solid var(--grid);border-radius:16px;background:#fff;cursor:pointer;
+    font-size:12.5px;font-weight:600;color:var(--muted);transition:all .15s;}
+  .opts button:hover{border-color:var(--primary);color:var(--primary);}
+  .opts button.picked{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .opts button.correct{background:var(--good);color:#fff;border-color:var(--good);}
+  .opts button.wrong{background:var(--pop);color:#fff;border-color:var(--pop);}
+  .scenario.done{border-left-color:var(--good);}
+  .scenario.miss{border-left-color:var(--pop);}
+  .fb{font-size:12.5px;margin-top:8px;color:var(--muted);display:none;}
+  .scenario.answered .fb{display:block;}
+  .bar{position:sticky;top:0;background:linear-gradient(160deg,#F7F3FC,#EEE6F8);padding:10px 0;margin-bottom:8px;z-index:5;}
+  .score{display:inline-block;padding:8px 16px;background:var(--primary);color:#fff;border-radius:20px;font-weight:700;font-size:15px;}
+  .reset{padding:8px 14px;border:none;border-radius:20px;background:var(--mist);color:var(--ink);font-weight:600;cursor:pointer;margin-left:8px;}
+</style>
+</head>
+<body>
+  <h1>🎯 Name That Distribution</h1>
+  <p class="sub">Pick the distribution that best fits each real-world scenario. Instant feedback.</p>
+  <div class="bar"><span class="score" id="score">0 / 8 correct</span><button class="reset" id="reset">↺ Reset</button></div>
+  <div class="board">
+    <div class="col" id="colA"></div>
+    <div class="col" id="colB"></div>
+  </div>
+<script>
+const OPTS=["Bernoulli","Binomial","Poisson","Gaussian","Uniform","Exponential"];
+const Q=[
+  {q:"A single coin flip: heads or tails",a:"Bernoulli",why:"One trial, two outcomes → Bernoulli."},
+  {q:"Number of heads in 10 coin flips",a:"Binomial",why:"Count of successes in a fixed number of trials → Binomial."},
+  {q:"Number of customer support calls arriving per hour",a:"Poisson",why:"Counts of events over a fixed interval → Poisson."},
+  {q:"Heights of adult women in a country",a:"Gaussian",why:"Natural measurements clustering around a mean → Gaussian (Normal)."},
+  {q:"A random number equally likely anywhere between 0 and 1",a:"Uniform",why:"Every value equally likely → Uniform."},
+  {q:"Time you wait until the next bus arrives",a:"Exponential",why:"Waiting time between random events → Exponential."},
+  {q:"Whether a single email is spam (yes/no)",a:"Bernoulli",why:"One trial, binary outcome → Bernoulli."},
+  {q:"Number of defective items in a batch of 50",a:"Binomial",why:"Successes/failures in a fixed batch → Binomial."}
+];
+let picks={},score=0;
+function render(){
+  const cols=[document.getElementById('colA'),document.getElementById('colB')];
+  cols.forEach(c=>c.innerHTML='');
+  document.getElementById('colA').innerHTML='<h3>Scenarios 1–4</h3>';
+  document.getElementById('colB').innerHTML='<h3>Scenarios 5–8</h3>';
+  Q.forEach((item,i)=>{
+    const col=i<4?document.getElementById('colA'):document.getElementById('colB');
+    const div=document.createElement('div');div.className='scenario';
+    const answered=picks[i]!==undefined;
+    if(answered)div.classList.add('answered',picks[i]===item.a?'done':'miss');
+    div.innerHTML=`<div class="q">${i+1}. ${item.q}</div><div class="opts">`+
+      OPTS.map(o=>{
+        let cls='';
+        if(answered){
+          if(o===item.a)cls='correct';
+          else if(o===picks[i])cls='wrong';
+        }else if(picks[i]===o)cls='picked';
+        return `<button data-i="${i}" data-o="${o}" class="${cls}">${o}</button>`;
+      }).join('')+`</div><div class="fb">${answered?(picks[i]===item.a?'✓ ':'✗ ')+item.why:''}</div>`;
+    col.appendChild(div);
+  });
+  document.querySelectorAll('.opts button').forEach(b=>{
+    b.onclick=()=>{const i=+b.dataset.i;if(picks[i]!==undefined)return;picks[i]=b.dataset.o;recompute();render();};
+  });
+}
+function recompute(){score=Q.reduce((s,item,i)=>s+(picks[i]===item.a?1:0),0);
+  document.getElementById('score').textContent=`${score} / 8 correct`;}
+document.getElementById('reset').onclick=()=>{picks={};score=0;document.getElementById('score').textContent='0 / 8 correct';render();};
+render();
+</script>
+</body>
+</html>
