@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bayes Tree — Rare Disease Test</title>
+<style>
+  :root{
+    --ink:#231942;--paper:#FFFFFF;--mist:#F0ECF7;--primary:#7B2CBF;--primary-dark:#5A189A;
+    --sick:#E76F51;--well:#2A9D8F;--accent:#F4A259;--muted:#6B6480;--grid:#E4DCF0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Calibri,Arial,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,#F7F3FC,#EEE6F8);padding:18px;}
+  h1{font-size:22px;margin:0 0 2px;}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px;}
+  .wrap{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  .panel{background:var(--paper);border-radius:16px;padding:18px;box-shadow:0 6px 24px rgba(35,25,66,.10);}
+  .tree{flex:1 1 560px;min-width:340px;}
+  .controls{flex:0 0 290px;min-width:270px;}
+  canvas{width:100%;height:auto;display:block;}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 4px;}
+  .val{color:var(--primary);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--primary);}
+  .answer{margin-top:16px;padding:16px;border-radius:12px;background:var(--mist);}
+  .answer .big{font-size:34px;font-weight:800;color:var(--sick);text-align:center;margin:4px 0;}
+  .answer .lbl{font-size:13px;color:var(--muted);text-align:center;}
+  .formula{margin-top:12px;font-family:'Cambria Math',Cambria,serif;font-size:13.5px;background:#fff;border-radius:10px;padding:12px;line-height:1.7;}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic;}
+  .toggle{margin-top:10px;}
+  .toggle button{width:100%;padding:10px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer;font-size:14px;}
+  .toggle button:hover{background:var(--primary-dark);}
+</style>
+</head>
+<body>
+  <h1>🌳 The Bayes Tree — Rare Disease Test</h1>
+  <p class="sub">A test is "99% accurate." You test positive. What's the chance you're actually sick? Move the sliders and see.</p>
+  <div class="wrap">
+    <div class="panel tree"><canvas id="cv" width="720" height="470"></canvas></div>
+    <div class="controls">
+      <label>Population</label>
+      <div style="font-size:20px;font-weight:800;color:var(--primary)">1,000 people</div>
+      <label>Disease prevalence = <span class="val" id="prevV">1%</span></label>
+      <input type="range" id="prev" min="0.5" max="30" step="0.5" value="1">
+      <label>Test sensitivity (catches sick) = <span class="val" id="sensV">99%</span></label>
+      <input type="range" id="sens" min="50" max="100" step="1" value="99">
+      <label>Test specificity (clears healthy) = <span class="val" id="specV">99%</span></label>
+      <input type="range" id="spec" min="50" max="100" step="1" value="99">
+      <div class="answer">
+        <div class="lbl">If you test POSITIVE, chance you're actually sick:</div>
+        <div class="big" id="ppv">—</div>
+        <div class="lbl" id="ppvNote"></div>
+      </div>
+      <div class="toggle"><button id="showF">Show Bayes' formula ▾</button></div>
+      <div class="formula" id="formula" style="display:none"></div>
+      <div class="hint">Try prevalence = 1%. Even a 99% test gives ~50% — because false positives from the huge healthy group flood the few true positives.</div>
+    </div>
+  </div>
+<script>
+const cv=document.getElementById('cv'), c=cv.getContext('2d');
+let prev=1,sens=99,spec=99;
+function calc(){
+  const N=1000;
+  const sick=N*prev/100, well=N-sick;
+  const TP=sick*sens/100, FN=sick-TP;
+  const TN=well*spec/100, FP=well-TN;
+  return {N,sick,well,TP,FN,TN,FP};
+}
+function draw(){
+  const d=calc();c.clearRect(0,0,720,470);
+  c.textAlign='center';
+  // root
+  box(360,20,150,50,'1,000 people','#7B2CBF','#fff');
+  // level 1
+  box(190,120,180,55,`${Math.round(d.sick)} sick`,'#E76F51','#fff',`${prev}% prevalence`);
+  box(540,120,180,55,`${Math.round(d.well)} healthy`,'#2A9D8F','#fff',`${100-prev}%`);
+  line(360,70,230,120);line(360,70,600,120);
+  // level 2 (four outcomes)
+  box(90,260,150,60,`${Math.round(d.TP)}`,'#C1121F','#fff','test + (true +)');
+  box(255,260,150,60,`${Math.round(d.FN)}`,'#9D8189','#fff','test − (miss)');
+  box(445,260,150,60,`${Math.round(d.FP)}`,'#E9C46A','#231942','test + (FALSE +)');
+  box(610,260,150,60,`${Math.round(d.TN)}`,'#264653','#fff','test − (true −)');
+  line(230,175,150,260);line(230,175,315,260);
+  line(600,175,505,260);line(600,175,670,260);
+  // bottom: the positives that matter
+  c.fillStyle='#231942';c.font='bold 14px Segoe UI';
+  c.fillText('Everyone who tested POSITIVE:',360,375);
+  const totalPos=d.TP+d.FP;
+  const ppv=totalPos>0?d.TP/totalPos*100:0;
+  // bar
+  const bx=110,bw=500,by=395,bh=40;
+  const tpw=totalPos>0?d.TP/totalPos*bw:0;
+  c.fillStyle='#C1121F';c.fillRect(bx,by,tpw,bh);
+  c.fillStyle='#E9C46A';c.fillRect(bx+tpw,by,bw-tpw,bh);
+  c.strokeStyle='#231942';c.lineWidth=1.5;c.strokeRect(bx,by,bw,bh);
+  c.fillStyle='#fff';c.font='bold 13px Segoe UI';c.textAlign='center';
+  if(tpw>40)c.fillText(`${Math.round(d.TP)} really sick`,bx+tpw/2,by+25);
+  c.fillStyle='#231942';
+  if(bw-tpw>60)c.fillText(`${Math.round(d.FP)} false alarms`,bx+tpw+(bw-tpw)/2,by+25);
+  c.fillStyle='#6B6480';c.font='12px Segoe UI';
+  c.fillText(`red = true positives · yellow = false positives`,360,by+bh+18);
+  // update side
+  document.getElementById('ppv').textContent=ppv.toFixed(1)+'%';
+  document.getElementById('ppvNote').textContent=
+    ppv<60?'Surprisingly low! False positives dominate.':(ppv<85?'Still not as high as you\'d think.':'High — because disease is common here.');
+  document.getElementById('formula').innerHTML=
+    `P(sick | +) = <br>&nbsp;&nbsp; P(+|sick)·P(sick) / P(+)<br><br>`+
+    `= (${(sens/100).toFixed(2)} × ${(prev/100).toFixed(3)}) / P(+)<br>`+
+    `P(+) = ${Math.round(d.TP)}+${Math.round(d.FP)} out of 1000 = ${((d.TP+d.FP)/10).toFixed(1)}%<br><br>`+
+    `= <b>${ppv.toFixed(1)}%</b>`;
+}
+function box(cx,y,w,h,txt,fill,col,sub){
+  const x=cx-w/2;c.fillStyle=fill;roundRect(x,y,w,h,8);c.fill();
+  c.fillStyle=col;c.font='bold 16px Segoe UI';c.textAlign='center';
+  c.fillText(txt,cx,sub?y+h/2:y+h/2+5);
+  if(sub){c.font='11px Segoe UI';c.fillText(sub,cx,y+h/2+16);}
+}
+function roundRect(x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function line(x1,y1,x2,y2){c.strokeStyle='#C9BEDD';c.lineWidth=2;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
+document.getElementById('prev').oninput=e=>{prev=+e.target.value;document.getElementById('prevV').textContent=prev+'%';draw();};
+document.getElementById('sens').oninput=e=>{sens=+e.target.value;document.getElementById('sensV').textContent=sens+'%';draw();};
+document.getElementById('spec').oninput=e=>{spec=+e.target.value;document.getElementById('specV').textContent=spec+'%';draw();};
+document.getElementById('showF').onclick=()=>{const f=document.getElementById('formula');f.style.display=f.style.display==='none'?'block':'none';};
+draw();
+</script>
+</body>
+</html>
