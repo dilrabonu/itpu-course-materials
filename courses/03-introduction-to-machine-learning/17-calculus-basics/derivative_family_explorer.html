@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Derivative Family — Which One When?</title>
+<style>
+  :root{
+    --ink:#0F2C4C; --primary:#2F6FED; --accent:#FF6B4A;
+    --good:#12B886; --purple:#7C4DFF; --muted:#5B6B7F; --grid:#D9E3F0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Calibri,Arial,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,#F4F8FE,#E7EEF9);padding:20px;}
+  h1{font-size:22px;margin:0 0 4px;}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 18px;}
+  .cards{display:flex;gap:14px;flex-wrap:wrap;}
+  .card{flex:1 1 190px;min-width:180px;background:#fff;border-radius:16px;padding:0;
+    box-shadow:0 6px 20px rgba(20,50,90,.10);cursor:pointer;overflow:hidden;
+    transition:transform .15s,box-shadow .15s;border:3px solid transparent;}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(20,50,90,.18);}
+  .card.active{border-color:var(--primary);}
+  .card .top{padding:16px 16px 12px;color:#fff;}
+  .card .body{padding:14px 16px 18px;}
+  .card h3{margin:0 0 4px;font-size:18px;}
+  .card .tag{font-size:11px;opacity:.9;text-transform:uppercase;letter-spacing:.5px;}
+  .card .shape{font-family:'Cambria Math',Cambria,serif;font-size:15px;margin:8px 0;color:var(--ink);}
+  .card p{font-size:12.5px;color:var(--muted);margin:6px 0 0;line-height:1.5;}
+  .detail{margin-top:18px;background:#fff;border-radius:16px;padding:22px;
+    box-shadow:0 6px 20px rgba(20,50,90,.10);min-height:150px;}
+  .detail h2{margin:0 0 10px;font-size:20px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+  .box{background:#F4F8FE;border-radius:12px;padding:14px 16px;}
+  .box h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--primary);}
+  .box .eqn{font-family:'Cambria Math',Cambria,serif;font-size:16px;line-height:1.8;}
+  .mlbox{background:#FFF4E6;}
+  .mlbox h4{color:var(--accent);}
+  .row{font-size:13.5px;line-height:1.8;}
+  .row b{color:var(--ink);}
+  .pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;
+    font-weight:700;color:#fff;}
+</style>
+</head>
+<body>
+  <h1>🧭 The Derivative Family</h1>
+  <p class="sub">Click each card. They all measure change — the difference is <b>how many inputs and outputs</b> the function has.</p>
+
+  <div class="cards" id="cards"></div>
+  <div class="detail" id="detail"></div>
+
+<script>
+const data=[
+  {key:'deriv',name:'Derivative',color:'#2F6FED',tag:'1 in → 1 out',
+   shape:'f(x) → f′(x)',
+   short:'How output changes as one input changes.',
+   inp:'One variable: f(x)',out:'A single number (slope)',
+   order:'First-order',
+   eqn:"f'(x) = df/dx",
+   ml:'The slope of a loss curve with one parameter. The simplest "which way is downhill?"',
+   example:"f(x)=(x−3)²  →  f′(x)=2(x−3)"},
+  {key:'partial',name:'Partial Derivative',color:'#12B886',tag:'many in → 1 out',
+   shape:'f(x,y) → ∂f/∂x',
+   short:'Change w.r.t. ONE input, others frozen.',
+   inp:'Several variables: f(x,y,…)',out:'A single number (slope in one direction)',
+   order:'First-order',
+   eqn:"∂f/∂x  (treat y as constant)",
+   ml:'Loss depends on many weights. Partial derivative = "how does loss change if I nudge only this one weight?"',
+   example:"f(x,y)=x²+y²  →  ∂f/∂x = 2x"},
+  {key:'grad',name:'Gradient',color:'#FF6B4A',tag:'many in → 1 out',
+   shape:'f(x,y) → ∇f = [∂f/∂x, ∂f/∂y]',
+   short:'ALL partial derivatives stacked into a vector.',
+   inp:'Several variables: f(x,y,…)',out:'A VECTOR (one slope per input)',
+   order:'First-order',
+   eqn:"∇f = [∂f/∂x, ∂f/∂y, …]",
+   ml:'THE key object in training. Points in the direction of steepest ASCENT — so we step in the −∇f direction to go downhill. This IS gradient descent.',
+   example:"f(x,y)=x²+y²  →  ∇f = [2x, 2y]"},
+  {key:'jac',name:'Jacobian',color:'#7C4DFF',tag:'many in → many out',
+   shape:'F(x,y) → matrix of ∂Fᵢ/∂xⱼ',
+   short:'Gradients for a vector-valued function → a matrix.',
+   inp:'Several variables IN',out:'A MATRIX (each row = gradient of one output)',
+   order:'First-order',
+   eqn:"J = [ ∂Fᵢ / ∂xⱼ ]",
+   ml:'When a layer maps a vector to a vector (most of a neural net!). Backprop chains Jacobians together.',
+   example:"F=[x²y, x+y]  →  J = [[2xy, x²],[1, 1]]"},
+  {key:'hess',name:'Hessian',color:'#E8590C',tag:'curvature',
+   shape:'f(x,y) → matrix of ∂²f/∂xᵢ∂xⱼ',
+   short:'ALL second-order partials → measures curvature.',
+   inp:'Several variables: f(x,y,…)',out:'A symmetric MATRIX (second derivatives)',
+   order:'Second-order',
+   eqn:"H = [ ∂²f / ∂xᵢ∂xⱼ ]",
+   ml:'Tells us if a critical point is a min, max, or saddle. Curvature = how fast the gradient itself changes. Symmetric! Basis of advanced optimizers.',
+   example:"f(x,y)=x²+y²  →  H = [[2,0],[0,2]]"}
+];
+
+const cardsEl=document.getElementById('cards');
+data.forEach((d,i)=>{
+  const c=document.createElement('div');
+  c.className='card'+(i===0?' active':'');
+  c.innerHTML=`<div class="top" style="background:${d.color}">
+      <div class="tag">${d.tag}</div><h3>${d.name}</h3></div>
+    <div class="body"><div class="shape">${d.shape}</div><p>${d.short}</p></div>`;
+  c.onclick=()=>{document.querySelectorAll('.card').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');show(d);};
+  cardsEl.appendChild(c);
+});
+
+function show(d){
+  document.getElementById('detail').innerHTML=`
+    <h2><span class="pill" style="background:${d.color}">${d.name}</span></h2>
+    <div class="row"><b>Input:</b> ${d.inp} &nbsp;·&nbsp; <b>Output:</b> ${d.out} &nbsp;·&nbsp; <b>Order:</b> ${d.order}</div>
+    <div class="grid2">
+      <div class="box"><h4>Definition</h4><div class="eqn">${d.eqn}</div>
+        <div style="margin-top:12px;font-size:13px;color:#5B6B7F">Worked example:</div>
+        <div class="eqn" style="font-size:14px">${d.example}</div></div>
+      <div class="box mlbox"><h4>Why ML cares</h4><div class="row">${d.ml}</div></div>
+    </div>`;
+}
+show(data[0]);
+</script>
+</body>
+</html>
