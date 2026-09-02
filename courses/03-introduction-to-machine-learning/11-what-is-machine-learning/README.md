@@ -41,3 +41,4 @@ https://gamma.app/docs/r1rnknjo007nlpb - 2
 # N 6
 https://www.beautiful.ai/player/-P0XdBK-eXbxg5u_O62Z?showControls=true
 AI and ML 
+https://excalidraw.com/#json=rjf5JyTr4dLyZJXByKB3q,e3earwBaK0qtNMH-fBpAFg  
