@@ -37,3 +37,7 @@ Explain the types of ML:
 https://gamma.app/docs/3bs5wvkcr5k97h0 - 1 
 
 https://gamma.app/docs/r1rnknjo007nlpb - 2 
+
+# N 6
+https://www.beautiful.ai/player/-P0XdBK-eXbxg5u_O62Z?showControls=true
+AI and ML 

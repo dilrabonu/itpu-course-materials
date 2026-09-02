@@ -4,9 +4,9 @@ https://www.mentimeter.com/app/presentation/algci2hech7kng3v2bx7yj318kbv1afp/edi
 Category warm up
 file:///C:/Users/user/Downloads/number-or-category.html  
 
-
 Supervised regression vs classification
 file:///C:/Users/user/Downloads/classification-vs-regression.html  
+
 # N 5
 Excalidraw
 https://excalidraw.com/#json=DHI5JTtSY5y9isQFkaHUS,zBiigy8645Cf2jdlyZRCvQ
@@ -23,8 +23,8 @@ Case study
 Coding:
 https://colab.research.google.com/drive/1T595Irq0lInDqIiSQXg5rB8KfFL5K00s#scrollTo=v2zuu8iIwCou
 
-
+# N 8
 Classifying:
-
-https://excalidraw.com/#json=d78CEOyF6JWiDz2RpbiCN,QTGKcQ8DDSd7ir_hk-br5A
+Divide 3 groups and do the task in excalidraw
+https://excalidraw.com/#json=DzOBUCRfg2gO0vN7Xdev_,PU6YP5C8kn4mykkQLRZxyw
 
