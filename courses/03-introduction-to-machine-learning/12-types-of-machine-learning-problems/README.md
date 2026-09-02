@@ -7,17 +7,18 @@ file:///C:/Users/user/Downloads/number-or-category.html
 
 Supervised regression vs classification
 file:///C:/Users/user/Downloads/classification-vs-regression.html  
-
+# N 5
 Excalidraw
 https://excalidraw.com/#json=DHI5JTtSY5y9isQFkaHUS,zBiigy8645Cf2jdlyZRCvQ
 
 https://excalidraw.com/#json=DHI5JTtSY5y9isQFkaHUS,zBiigy8645Cf2jdlyZRCvQ
 
 https://excalidraw.com/
-# N 
+# N 6
 Kahoot
 https://create.kahoot.it/my-library/kahoots/a73fb07a-b955-498b-9531-649b2442a1cf 
 
+# N 7
 Case study
 Coding:
 https://colab.research.google.com/drive/1T595Irq0lInDqIiSQXg5rB8KfFL5K00s#scrollTo=v2zuu8iIwCou

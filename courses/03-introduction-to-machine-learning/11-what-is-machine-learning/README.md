@@ -32,7 +32,7 @@ https://miro.com/app/board/uXjVHw8Dl2Y=/
 students are divide to three groups and do the tasks in ecalidraw 
 excalidraw they do: https://excalidraw.com/#json=MJzovsIjNHNpSNjo4CtW4,sN9sT1IgKWf3adYoa8iFLA  
 
-# N 
+# N 5
 Explain the types of ML:
 https://gamma.app/docs/3bs5wvkcr5k97h0 - 1 
 
