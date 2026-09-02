@@ -37,6 +37,7 @@ file:///C:/Users/user/Downloads/ml_activities%20(1).html - every student do thes
 Classify the ML types
 https://miro.com/app/board/uXjVHw8Dl2Y=/  
 
+excalidraw they do: https://excalidraw.com/#json=MJzovsIjNHNpSNjo4CtW4,sN9sT1IgKWf3adYoa8iFLA  
 
 I will explain it :
 The anatomy of dataset 
