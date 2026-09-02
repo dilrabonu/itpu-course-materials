@@ -33,3 +33,8 @@ file:///C:/Users/user/Downloads/ml_activities%20(1).html - every student do thes
 # N 2
 Classify the ML types
 https://miro.com/app/board/uXjVHw8Dl2Y=/  
+
+
+I will explain it :
+The anatomy of dataset 
+file:///C:/Users/user/Downloads/ml-vocabulary-explorer.html 
