@@ -33,6 +33,10 @@ Checking the understanding:
 
 file:///C:/Users/user/Downloads/ml_activities%20(1).html - every student do these tasks seperately and share their results with screentshot to the chat
 
+# N 
+Explain Traditional coding and ML 
+https://app.napkin.ai/page/CgoiCHByb2Qtb25lEiwKBFBhZ2UaJGNkMjZkYmY3LWI3ZjUtNDA5MS1hMzNhLTRhZDMzMTg1NWFjMQ
+
 # N 2
 Classify the ML types
 https://miro.com/app/board/uXjVHw8Dl2Y=/  
