@@ -39,6 +39,7 @@ https://miro.com/app/board/uXjVHw8Dl2Y=/
 
 excalidraw they do: https://excalidraw.com/#json=MJzovsIjNHNpSNjo4CtW4,sN9sT1IgKWf3adYoa8iFLA  
 
+
 I will explain it :
 The anatomy of dataset 
 file:///C:/Users/user/Downloads/ml-vocabulary-explorer.html 
