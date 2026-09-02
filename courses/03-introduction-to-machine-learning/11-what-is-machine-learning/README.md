@@ -24,3 +24,7 @@ file:///C:/Users/user/Downloads/marketnest-framing-simulator.html
 
 Resources:
 https://www.databricks.com/blog/machine-learning
+
+
+Checking the understanding:
+
