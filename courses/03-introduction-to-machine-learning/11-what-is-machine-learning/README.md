@@ -34,4 +34,6 @@ excalidraw they do: https://excalidraw.com/#json=MJzovsIjNHNpSNjo4CtW4,sN9sT1IgK
 
 # N 
 Explain the types of ML:
-https://gamma.app/docs/3bs5wvkcr5k97h0 
+https://gamma.app/docs/3bs5wvkcr5k97h0 - 1 
+
+https://gamma.app/docs/r1rnknjo007nlpb - 2 
