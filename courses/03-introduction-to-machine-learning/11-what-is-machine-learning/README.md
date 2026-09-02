@@ -25,6 +25,9 @@ file:///C:/Users/user/Downloads/marketnest-framing-simulator.html
 Resources:
 https://www.databricks.com/blog/machine-learning
 
+# Beginning of the lesson:
+https://www.mentimeter.com/app/presentation/alhi631q8r18g5h845apm9npgn64cgke/edit?rollout-assigned=1&question=vg98ic1w7ef5 
+
 # N 1
 Checking the understanding:
 
