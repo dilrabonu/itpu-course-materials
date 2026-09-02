@@ -28,3 +28,4 @@ https://www.databricks.com/blog/machine-learning
 
 Checking the understanding:
 
+file:///C:/Users/user/Downloads/ml_activities%20(1).html - every student do these tasks seperately and share their results with screentshot to the chat
