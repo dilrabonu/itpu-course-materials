@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ML Topic 1 — Concept Studio</title>
+<style>
+  :root{
+    --teal:#028090; --teal-d:#016170; --sea:#00A896; --mint:#02C39A;
+    --navy:#05445E; --ink:#11333B; --paper:#F7FAFA; --card:#FFFFFF;
+    --line:#D6E6E4; --muted:#5B7A82; --coral:#E85D5D; --coral-d:#c9483f;
+    --gold:#F2B705; --ice:#E6F4F1;
+    --shadow:0 6px 22px rgba(5,68,94,.10);
+    --shadow-lg:0 14px 40px rgba(5,68,94,.16);
+    --r:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, #e9f6f4 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #e4f2ef 0%, transparent 55%),
+      var(--paper);
+    color:var(--ink); line-height:1.55; min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:26px 20px 80px}
+
+  /* ---------- Header ---------- */
+  header.top{display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+  .logo{
+    width:46px;height:46px;border-radius:13px;flex:none;
+    background:linear-gradient(135deg,var(--teal),var(--mint));
+    display:grid;place-items:center;color:#fff;font-size:24px;
+    box-shadow:var(--shadow);
+  }
+  .brand h1{font-size:1.32rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;line-height:1.2}
+  .brand p{font-size:.86rem;color:var(--muted)}
+  .scorepill{
+    margin-left:auto;display:flex;align-items:center;gap:14px;
+    background:var(--navy);color:#fff;border-radius:999px;padding:9px 18px;
+    box-shadow:var(--shadow);font-variant-numeric:tabular-nums;
+  }
+  .scorepill b{font-size:1.15rem}
+  .scorepill .lab{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;opacity:.75;display:block;line-height:1}
+  .scorepill .grp{text-align:center}
+  .flame{filter:grayscale(1) opacity(.4);transition:.3s}
+  .flame.hot{filter:none}
+
+  .lead{color:var(--muted);font-size:.98rem;margin:14px 2px 22px;max-width:70ch}
+
+  /* ---------- Hub ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px}
+  .tile{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:20px;cursor:pointer;text-align:left;font:inherit;color:inherit;
+    box-shadow:var(--shadow);transition:transform .16s ease,box-shadow .16s ease,border-color .16s;
+    display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;
+  }
+  .tile:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--sea)}
+  .tile:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+  .tile .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;color:#fff}
+  .tile h3{font-size:1.08rem;color:var(--navy);font-weight:700}
+  .tile p{font-size:.86rem;color:var(--muted)}
+  .tile .meta{display:flex;gap:8px;margin-top:2px;flex-wrap:wrap}
+  .chip{font-size:.7rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--ice);color:var(--teal-d)}
+  .chip.time{background:#FFF3D1;color:#8a6d00}
+  .chip.done{background:var(--mint);color:#03302a}
+  .tile .go{position:absolute;right:16px;bottom:16px;color:var(--sea);font-weight:700;font-size:1.3rem;opacity:0;transition:.16s}
+  .tile:hover .go{opacity:1;right:14px}
+
+  /* ---------- Activity view ---------- */
+  .view{display:none;animation:fade .3s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .back{
+    background:none;border:none;color:var(--teal-d);font:inherit;font-weight:600;
+    cursor:pointer;padding:8px 0;margin-bottom:6px;display:inline-flex;gap:6px;align-items:center;
+  }
+  .back:hover{color:var(--navy)}
+  .actHead{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px}
+  .actHead .ic{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:24px;color:#fff;flex:none}
+  .actHead h2{font-size:1.5rem;color:var(--navy);letter-spacing:-.01em}
+  .actHead p.sub{color:var(--muted);font-size:.92rem}
+  .progress{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin:16px 0 22px}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--mint));transition:width .4s ease;border-radius:999px}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:24px;box-shadow:var(--shadow);
+  }
+  .qnum{font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sea)}
+  .qtext{font-size:1.24rem;color:var(--ink);font-weight:600;margin:6px 0 18px;line-height:1.4}
+
+  .opts{display:flex;flex-direction:column;gap:11px}
+  .opt{
+    display:flex;align-items:center;gap:13px;padding:14px 16px;border:2px solid var(--line);
+    border-radius:12px;background:#fff;cursor:pointer;font:inherit;text-align:left;color:var(--ink);
+    transition:border-color .14s,background .14s,transform .1s;width:100%;
+  }
+  .opt:hover:not(:disabled){border-color:var(--sea);background:var(--ice)}
+  .opt:active:not(:disabled){transform:scale(.99)}
+  .opt:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+  .opt .key{
+    width:30px;height:30px;border-radius:8px;background:var(--ice);color:var(--teal-d);
+    font-weight:700;display:grid;place-items:center;flex:none;font-size:.95rem;transition:.14s;
+  }
+  .opt.correct{border-color:var(--mint);background:#e6faf5}
+  .opt.correct .key{background:var(--mint);color:#03302a}
+  .opt.wrong{border-color:var(--coral);background:#fdecec}
+  .opt.wrong .key{background:var(--coral);color:#fff}
+  .opt:disabled{cursor:default}
+  .opt .tick{margin-left:auto;font-weight:700;font-size:1.1rem}
+
+  .feedback{
+    margin-top:16px;padding:14px 16px;border-radius:12px;font-size:.94rem;
+    display:none;border-left:5px solid var(--sea);background:var(--ice);color:var(--ink);
+  }
+  .feedback.show{display:block;animation:fade .25s ease}
+  .feedback.good{border-color:var(--mint);background:#e6faf5}
+  .feedback.bad{border-color:var(--coral);background:#fdecec}
+  .feedback b{color:var(--navy)}
+
+  .rowbtns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .btn{
+    font:inherit;font-weight:600;border:none;border-radius:11px;padding:12px 22px;cursor:pointer;
+    background:var(--teal);color:#fff;box-shadow:var(--shadow);transition:.14s;
+  }
+  .btn:hover{background:var(--teal-d);transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:default;transform:none}
+  .btn.ghost{background:#fff;color:var(--teal-d);border:2px solid var(--line);box-shadow:none}
+  .btn.ghost:hover{border-color:var(--sea);background:var(--ice)}
+
+  /* ---------- Sorting activity ---------- */
+  .sortStage{display:grid;grid-template-columns:1fr;gap:18px}
+  .itemDock{background:var(--ice);border:2px dashed var(--sea);border-radius:14px;padding:16px;min-height:92px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
+  .bins{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:560px){.bins{grid-template-columns:1fr}}
+  .bin{border:2px solid var(--line);border-radius:14px;padding:14px;background:#fff;min-height:150px;transition:.15s}
+  .bin.over{border-color:var(--teal);background:var(--ice);transform:scale(1.01)}
+  .bin h4{font-size:.95rem;color:var(--navy);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .bin .dot{width:12px;height:12px;border-radius:4px}
+  .binItems{display:flex;flex-wrap:wrap;gap:9px}
+  .token{
+    background:#fff;border:2px solid var(--line);border-radius:10px;padding:9px 13px;font-size:.9rem;
+    cursor:grab;user-select:none;box-shadow:0 2px 6px rgba(5,68,94,.07);transition:.12s;font-weight:500;
+  }
+  .token:hover{border-color:var(--sea)}
+  .token:active{cursor:grabbing}
+  .token.dragging{opacity:.4}
+  .token.ok{border-color:var(--mint);background:#e6faf5}
+  .token.no{border-color:var(--coral);background:#fdecec;animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .dockLabel{font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:6px;display:block}
+
+  /* ---------- Match activity ---------- */
+  .matchGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.matchGrid{grid-template-columns:1fr}}
+  .mcol h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px}
+  .mitem{
+    padding:13px 15px;border:2px solid var(--line);border-radius:11px;background:#fff;cursor:pointer;
+    margin-bottom:10px;font-size:.92rem;transition:.14s;font:inherit;width:100%;text-align:left;color:var(--ink);
+  }
+  .mitem:hover:not(:disabled){border-color:var(--sea);background:var(--ice)}
+  .mitem.sel{border-color:var(--teal);background:var(--ice);box-shadow:0 0 0 3px rgba(2,128,144,.15)}
+  .mitem.matched{border-color:var(--mint);background:#e6faf5;cursor:default}
+  .mitem.matched::after{content:"✓";float:right;color:var(--mint);font-weight:700}
+  .mitem:disabled{cursor:default}
+
+  /* ---------- Build-dataset ---------- */
+  .dsTable{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:.9rem}
+  .dsTable th,.dsTable td{border:1px solid var(--line);padding:9px 11px;text-align:center}
+  .dsTable th{background:var(--navy);color:#fff;font-weight:600;cursor:pointer;position:relative}
+  .dsTable th.pick-feature{background:var(--teal)}
+  .dsTable th.pick-target{background:var(--gold);color:var(--navy)}
+  .dsTable td{background:#fff}
+  .dsTable tr:nth-child(even) td{background:var(--paper)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin:10px 0}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+  /* ---------- Results ---------- */
+  .result{text-align:center;padding:30px 20px}
+  .result .big{font-size:3.4rem;font-weight:800;color:var(--teal);line-height:1;font-variant-numeric:tabular-nums}
+  .result .msg{font-size:1.15rem;color:var(--navy);font-weight:600;margin:10px 0 4px}
+  .result .sub{color:var(--muted);font-size:.92rem;margin-bottom:20px}
+  .badge{display:inline-block;font-size:2.6rem;margin-bottom:6px}
+
+  .talk{
+    margin-top:22px;background:linear-gradient(135deg,var(--navy),#0a5a6e);color:#fff;border-radius:14px;
+    padding:18px 20px;box-shadow:var(--shadow);
+  }
+  .talk h4{font-size:.95rem;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .talk p{font-size:.92rem;opacity:.95}
+  .talk .tag{font-size:.7rem;background:rgba(255,255,255,.2);padding:3px 9px;border-radius:999px;margin-left:auto;font-weight:600}
+
+  footer{margin-top:34px;text-align:center;color:var(--muted);font-size:.8rem}
+  .kbd{font-size:.75rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--muted);box-shadow:0 1px 0 var(--line)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">◧</div>
+    <div class="brand">
+      <h1>ML Concept Studio</h1>
+      <p>Topic 1 · What is Machine Learning?</p>
+    </div>
+    <div class="scorepill" title="Your running score this session">
+      <div class="grp"><span class="lab">Points</span><b id="score">0</b></div>
+      <div class="grp"><span class="lab">Streak</span><b><span id="streak">0</span> <span class="flame" id="flame">🔥</span></b></div>
+    </div>
+  </header>
+
+  <!-- ================= HUB ================= -->
+  <section id="hub" class="view active">
+    <p class="lead">Five short activities. Work through them at your own pace or when your facilitator opens one. Each checks itself instantly — try, guess, get it wrong, learn. Talk out your reasoning with your group as you go.</p>
+    <div class="grid" id="tiles"></div>
+    <footer>Tip: press <span class="kbd">1</span>–<span class="kbd">5</span> to jump to an activity · <span class="kbd">Esc</span> returns here</footer>
+  </section>
+
+  <!-- ================= ACTIVITY SHELL ================= -->
+  <section id="activity" class="view">
+    <button class="back" onclick="goHub()">← All activities</button>
+    <div class="actHead">
+      <div class="ic" id="actIc"></div>
+      <div>
+        <h2 id="actTitle"></h2>
+        <p class="sub" id="actSub"></p>
+      </div>
+    </div>
+    <div class="progress"><i id="bar"></i></div>
+    <div id="stage"></div>
+  </section>
+</div>
+
+<script>
+/* ============================================================
+   STATE
+============================================================ */
+const S = { score:0, streak:0, done:{} };
+function addPoints(n, correct){
+  if(correct){ S.streak++; } else { S.streak=0; }
+  S.score = Math.max(0, S.score + n);
+  document.getElementById('score').textContent = S.score;
+  document.getElementById('streak').textContent = S.streak;
+  document.getElementById('flame').classList.toggle('hot', S.streak>=3);
+}
+
+/* ============================================================
+   ACTIVITY DEFINITIONS
+============================================================ */
+const ACTIVITIES = [
+  { id:'spot', icon:'🔎', color:'linear-gradient(135deg,#028090,#00A896)',
+    title:'Is this even an ML problem?',
+    blurb:'Decide whether each task actually needs machine learning — or just plain rules.',
+    time:'6 min', mode:'Vote & reveal' },
+  { id:'sort', icon:'🗂️', color:'linear-gradient(135deg,#00A896,#02C39A)',
+    title:'Supervised or Unsupervised?',
+    blurb:'Drag each real-world problem into the right learning type. Instant check.',
+    time:'7 min', mode:'Drag & drop' },
+  { id:'vocab', icon:'🔗', color:'linear-gradient(135deg,#05445E,#028090)',
+    title:'Match the ML vocabulary',
+    blurb:'Connect each term to its meaning using the cat–dog dataset.',
+    time:'5 min', mode:'Matching' },
+  { id:'build', icon:'🧩', color:'linear-gradient(135deg,#F2B705,#e29500)',
+    title:'Build the dataset',
+    blurb:'Given a goal, choose which columns are features and which is the target.',
+    time:'6 min', mode:'Click to label' },
+  { id:'aivsml', icon:'🌐', color:'linear-gradient(135deg,#028090,#05445E)',
+    title:'ML, AI, or just a program?',
+    blurb:'Place each example on the map: plain code → ML → broader AI.',
+    time:'6 min', mode:'Quick classify' },
+];
+
+/* ---------- Activity 1: Spot the ML problem ---------- */
+const SPOT = [
+  { q:'Recommend the next film for each of 50 million users, updated daily.',
+    ml:true, why:'A pattern exists in viewing habits, it repeats endlessly, and a slightly-off pick is cheap. Textbook ML.' },
+  { q:'Convert a temperature from Celsius to Fahrenheit.',
+    ml:false, why:'One exact formula covers every case. Plain code — no pattern to learn, so ML would only add error.' },
+  { q:'Predict the next number from a fair, unbiased die.',
+    ml:false, why:'There is no pattern to learn — each roll is independent. ML has nothing to grab onto.' },
+  { q:'Flag credit-card transactions that look unusual for that customer.',
+    ml:true, why:'Normal behaviour forms a pattern; deviations can be learned. Huge volume, and rules alone can\u2019t keep up.' },
+  { q:'Check whether a password field is left empty before submitting a form.',
+    ml:false, why:'A single if-statement handles it perfectly. Using ML here is over-engineering.' },
+  { q:'Transcribe spoken Uzbek voice messages into text.',
+    ml:true, why:'Speech is far too varied for hand-written rules, but rich patterns exist in audio → text pairs.' },
+];
+
+/* ---------- Activity 2: Supervised vs Unsupervised (drag) ---------- */
+const SORT = {
+  bins:[
+    {id:'sup', label:'Supervised', color:'#028090', hint:'has labels / known answers'},
+    {id:'uns', label:'Unsupervised', color:'#00A896', hint:'no labels — find structure'},
+  ],
+  items:[
+    {t:'Predict house price from past sales with known prices', bin:'sup'},
+    {t:'Group shoppers into segments with no preset categories', bin:'uns'},
+    {t:'Classify email as spam using a pre-labelled folder', bin:'sup'},
+    {t:'Find unusual patterns in network traffic (no labels)', bin:'uns'},
+    {t:'Predict tomorrow\u2019s temperature from labelled history', bin:'sup'},
+    {t:'Organise 10,000 news articles into topics on their own', bin:'uns'},
+  ],
+};
+
+/* ---------- Activity 3: Vocabulary match ---------- */
+const MATCH = [
+  {term:'Dataset', def:'The whole table the machine learns from'},
+  {term:'Instance', def:'A single row — one example or observation'},
+  {term:'Feature', def:'An input column used to make a prediction'},
+  {term:'Target', def:'The column we want to predict'},
+  {term:'Model', def:'The trained result that maps inputs → prediction'},
+  {term:'Algorithm', def:'The learning procedure — the "recipe"'},
+];
+
+/* ---------- Activity 4: Build the dataset ---------- */
+const BUILD = {
+  goal:'Goal: predict whether a loan applicant will repay.',
+  columns:['Age','Monthly income','Job type','Will repay?','City'],
+  target:'Will repay?',
+  // everything except target is a valid feature; but we grade target + features
+  featureNote:'Everything that helps predict, except the answer itself, is a feature.',
+  rows:[
+    ['34','8M so\u2019m','Engineer','Yes','Fergana'],
+    ['52','3M so\u2019m','Farmer','No','Namangan'],
+    ['28','12M so\u2019m','Doctor','Yes','Tashkent'],
+  ],
+};
+
+/* ---------- Activity 5: ML / AI / Program ---------- */
+const AIVSML = [
+  { q:'A thermostat that switches heating on below 18°C.',
+    a:'prog', why:'A fixed rule, no learning. Plain program — not ML, and not really "AI".' },
+  { q:'Grouping songs into moods from audio, with no labels.',
+    a:'ml', why:'Learns structure from data with no labels — unsupervised ML.' },
+  { q:'A voice assistant that chats, answers questions and books meetings.',
+    a:'ai', why:'Broad human-like behaviour = AI. It uses ML parts inside, but the whole is bigger than ML.' },
+  { q:'Predicting sales next month from years of sales data.',
+    a:'ml', why:'Learns a pattern from labelled history to predict a number — supervised ML.' },
+  { q:'A calculator app computing square roots.',
+    a:'prog', why:'Deterministic formula. No pattern learned — just a program.' },
+];
+const AIVSML_BINS = { prog:'Plain program', ml:'Machine learning', ai:'Broader AI' };
+
+/* ============================================================
+   HUB RENDER
+============================================================ */
+function renderHub(){
+  const box = document.getElementById('tiles');
+  box.innerHTML = '';
+  ACTIVITIES.forEach((a,i)=>{
+    const done = S.done[a.id];
+    const el = document.createElement('button');
+    el.className='tile'; el.onclick=()=>openActivity(a.id);
+    el.innerHTML = `
+      <div class="ic" style="background:${a.color}">${a.icon}</div>
+      <h3>${i+1}. ${a.title}</h3>
+      <p>${a.blurb}</p>
+      <div class="meta">
+        <span class="chip time">⏱ ${a.time}</span>
+        <span class="chip">${a.mode}</span>
+        ${done?`<span class="chip done">✓ ${done}%</span>`:''}
+      </div>
+      <span class="go">→</span>`;
+    box.appendChild(el);
+  });
+}
+
+/* ============================================================
+   NAV
+============================================================ */
+function goHub(){
+  document.getElementById('activity').classList.remove('active');
+  document.getElementById('hub').classList.add('active');
+  renderHub();
+  window.scrollTo({top:0});
+}
+function openActivity(id){
+  const a = ACTIVITIES.find(x=>x.id===id);
+  document.getElementById('hub').classList.remove('active');
+  document.getElementById('activity').classList.add('active');
+  document.getElementById('actIc').style.background=a.color;
+  document.getElementById('actIc').textContent=a.icon;
+  document.getElementById('actTitle').textContent=a.title;
+  document.getElementById('actSub').textContent=a.blurb;
+  setBar(0);
+  window.scrollTo({top:0});
+  ({spot:runSpot, sort:runSort, vocab:runMatch, build:runBuild, aivsml:runAiMl}[id])();
+}
+function setBar(pct){ document.getElementById('bar').style.width=pct+'%'; }
+function stage(){ return document.getElementById('stage'); }
+
+/* helper: talking-point box shown at results */
+function talkBox(text, tag){
+  return `<div class="talk"><h4>💬 Talk it through <span class="tag">${tag||'group task'}</span></h4><p>${text}</p></div>`;
+}
+function resultView(pct, right, total, badge, msg, talk, id){
+  S.done[id] = pct;
+  const b = pct===100?'🏆':pct>=80?'🌟':pct>=60?'👍':'🌱';
+  return `<div class="card result">
+      <div class="badge">${badge||b}</div>
+      <div class="big">${pct}%</div>
+      <div class="msg">${msg||(pct===100?'Flawless!':pct>=60?'Nicely done':'Good start')}</div>
+      <div class="sub">${right} of ${total} correct</div>
+      <div class="rowbtns" style="justify-content:center">
+        <button class="btn" onclick="openActivity('${id}')">Try again</button>
+        <button class="btn ghost" onclick="goHub()">Back to activities</button>
+      </div>
+    </div>${talk?talkBox(talk,'discuss in your breakout'):''}`;
+}
+
+/* ============================================================
+   ACTIVITY 1 — SPOT THE ML PROBLEM (vote & reveal)
+============================================================ */
+function runSpot(){
+  let i=0, right=0;
+  const data = SPOT;
+  function draw(){
+    setBar(Math.round(i/data.length*100));
+    const it=data[i];
+    stage().innerHTML=`
+      <div class="card">
+        <div class="qnum">Task ${i+1} of ${data.length}</div>
+        <div class="qtext">${it.q}</div>
+        <div class="opts">
+          <button class="opt" data-v="true"><span class="key">ML</span> This needs machine learning</button>
+          <button class="opt" data-v="false"><span class="key">✎</span> Plain rules / normal code are enough</button>
+        </div>
+        <div class="feedback" id="fb"></div>
+        <div class="rowbtns"><button class="btn" id="next" disabled>Next task →</button></div>
+      </div>`;
+    stage().querySelectorAll('.opt').forEach(o=>o.onclick=()=>choose(o));
+    document.getElementById('next').onclick=()=>{ i++; i<data.length?draw():finish(); };
+  }
+  function choose(o){
+    const it=data[i];
+    const pick = o.dataset.v==='true';
+    const correct = pick===it.ml;
+    stage().querySelectorAll('.opt').forEach(b=>{
+      b.disabled=true;
+      const v=b.dataset.v==='true';
+      if(v===it.ml) b.classList.add('correct');
+      else if(b===o) b.classList.add('wrong');
+    });
+    if(correct) right++;
+    addPoints(correct?10:-2, correct);
+    const fb=document.getElementById('fb');
+    fb.className='feedback show '+(correct?'good':'bad');
+    fb.innerHTML=`<b>${correct?'Correct — ':'Not quite. '}</b>${it.why}`;
+    document.getElementById('next').disabled=false;
+  }
+  function finish(){
+    setBar(100);
+    const pct=Math.round(right/data.length*100);
+    stage().innerHTML=resultView(pct,right,data.length,null,null,
+      'Which of these felt hardest to call? A task can look complex but still be plain rules — and look simple but need ML. Share one example from your own life that sits on the border.','spot');
+  }
+  draw();
+}
+
+/* ============================================================
+   ACTIVITY 2 — SORT (drag & drop)
+============================================================ */
+function runSort(){
+  const pending = SORT.items.map((x,idx)=>({...x,idx,placed:null}));
+  function draw(){
+    const placed = pending.filter(p=>p.placed).length;
+    setBar(Math.round(placed/pending.length*100));
+    stage().innerHTML=`
+      <div class="card">
+        <span class="dockLabel">Drag each problem into a bin — or tap it, then tap a bin.</span>
+        <div class="itemDock" id="dock"></div>
+        <div class="bins">
+          ${SORT.bins.map(b=>`
+            <div class="bin" data-bin="${b.id}">
+              <h4><span class="dot" style="background:${b.color}"></span>${b.label}
+                <span style="font-weight:400;color:var(--muted);font-size:.8rem">· ${b.hint}</span></h4>
+              <div class="binItems" data-binitems="${b.id}"></div>
+            </div>`).join('')}
+        </div>
+        <div class="feedback" id="fb"></div>
+        <div class="rowbtns">
+          <button class="btn" id="check" disabled>Check my answers</button>
+          <button class="btn ghost" id="reset">Reset</button>
+        </div>
+      </div>`;
+    renderTokens();
+    wireDnD();
+    document.getElementById('check').onclick=check;
+    document.getElementById('reset').onclick=runSort;
+  }
+  let selected=null;
+  function renderTokens(){
+    const dock=document.getElementById('dock');
+    dock.innerHTML='';
+    SORT.bins.forEach(b=>document.querySelector(`[data-binitems="${b.id}"]`).innerHTML='');
+    pending.forEach(p=>{
+      const t=document.createElement('div');
+      t.className='token'; t.draggable=true; t.textContent=p.t; t.dataset.idx=p.idx;
+      t.addEventListener('dragstart',e=>{t.classList.add('dragging');e.dataTransfer.setData('text',p.idx)});
+      t.addEventListener('dragend',()=>t.classList.remove('dragging'));
+      t.addEventListener('click',()=>{
+        document.querySelectorAll('.token').forEach(x=>x.style.outline='');
+        if(selected===p.idx){selected=null;t.style.outline='';}
+        else{selected=p.idx;t.style.outline='3px solid var(--teal)';}
+      });
+      (p.placed?document.querySelector(`[data-binitems="${p.placed}"]`):dock).appendChild(t);
+    });
+    const anyPlaced=pending.some(p=>p.placed);
+    document.getElementById('check').disabled=!pending.every(p=>p.placed);
+  }
+  function place(idx,bin){
+    const p=pending.find(x=>x.idx==idx); if(p){p.placed=bin;} selected=null;
+    renderTokens();
+    setBar(Math.round(pending.filter(p=>p.placed).length/pending.length*100));
+  }
+  function wireDnD(){
+    document.querySelectorAll('.bin').forEach(bin=>{
+      bin.addEventListener('dragover',e=>{e.preventDefault();bin.classList.add('over')});
+      bin.addEventListener('dragleave',()=>bin.classList.remove('over'));
+      bin.addEventListener('drop',e=>{e.preventDefault();bin.classList.remove('over');place(e.dataTransfer.getData('text'),bin.dataset.bin)});
+      bin.addEventListener('click',()=>{ if(selected!==null) place(selected,bin.dataset.bin); });
+    });
+    const dock=document.getElementById('dock');
+    dock.addEventListener('dragover',e=>e.preventDefault());
+    dock.addEventListener('drop',e=>{e.preventDefault();const p=pending.find(x=>x.idx==e.dataTransfer.getData('text'));if(p)p.placed=null;renderTokens();});
+  }
+  function check(){
+    let right=0;
+    pending.forEach(p=>{
+      const tok=[...document.querySelectorAll('.token')].find(t=>t.dataset.idx==p.idx);
+      if(p.placed===p.bin){right++;tok.classList.add('ok');} else {tok.classList.add('no');}
+    });
+    addPoints(right*6-(pending.length-right)*2, right===pending.length);
+    const pct=Math.round(right/pending.length*100);
+    const fb=document.getElementById('fb');
+    fb.className='feedback show '+(right===pending.length?'good':'bad');
+    fb.innerHTML=`<b>${right}/${pending.length} correct.</b> Remember the tell: <b>labelled/known answers → supervised</b>; <b>no labels, find the structure → unsupervised</b>.`;
+    document.getElementById('check').disabled=true;
+    document.querySelectorAll('.token').forEach(t=>t.draggable=false);
+    S.done['sort']=pct;
+    setTimeout(()=>{
+      stage().insertAdjacentHTML('beforeend',
+        talkBox('One problem can flip type depending on the data you have. Take "spam detection": with a labelled folder it\u2019s supervised — but with no labels at all, how would you approach it? Discuss.','breakout'));
+    },400);
+  }
+  draw();
+}
+
+/* ============================================================
+   ACTIVITY 3 — VOCAB MATCH
+============================================================ */
+function runMatch(){
+  const terms=[...MATCH].sort(()=>Math.random()-.5);
+  const defs=[...MATCH].sort(()=>Math.random()-.5);
+  let selTerm=null, matched=0, tries=0;
+  stage().innerHTML=`
+    <div class="card">
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:14px">Tap a term, then tap its meaning. Green = matched.</p>
+      <div class="matchGrid">
+        <div class="mcol"><h4>Term</h4><div id="terms"></div></div>
+        <div class="mcol"><h4>Meaning</h4><div id="defs"></div></div>
+      </div>
+      <div class="feedback" id="fb"></div>
+    </div>`;
+  const tc=document.getElementById('terms'), dc=document.getElementById('defs');
+  terms.forEach(t=>{
+    const b=document.createElement('button'); b.className='mitem'; b.textContent=t.term; b.dataset.term=t.term;
+    b.onclick=()=>{ if(b.classList.contains('matched'))return;
+      document.querySelectorAll('#terms .mitem').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel'); selTerm=t.term; };
+    tc.appendChild(b);
+  });
+  defs.forEach(d=>{
+    const b=document.createElement('button'); b.className='mitem'; b.textContent=d.def; b.dataset.for=d.term;
+    b.onclick=()=>{ if(!selTerm||b.classList.contains('matched'))return;
+      tries++;
+      const fb=document.getElementById('fb');
+      if(b.dataset.for===selTerm){
+        matched++;
+        const tb=document.querySelector(`#terms .mitem[data-term="${selTerm}"]`);
+        tb.classList.add('matched'); tb.classList.remove('sel'); tb.disabled=true;
+        b.classList.add('matched'); b.disabled=true;
+        addPoints(8,true);
+        fb.className='feedback show good'; fb.innerHTML='<b>Matched!</b> Keep going.';
+        selTerm=null;
+        if(matched===MATCH.length) finish();
+      } else {
+        addPoints(-2,false);
+        b.classList.add('wrong'); setTimeout(()=>b.classList.remove('wrong'),500);
+        fb.className='feedback show bad'; fb.innerHTML='<b>Not that one.</b> Picture the cat–dog table and try again.';
+      }
+      setBar(Math.round(matched/MATCH.length*100));
+    };
+    dc.appendChild(b);
+  });
+  function finish(){
+    setBar(100);
+    const pct=Math.round(MATCH.length/tries*100);
+    setTimeout(()=>{
+      stage().innerHTML=resultView(Math.min(100,pct),MATCH.length,tries,'🔗',
+        tries===MATCH.length?'Perfect recall!':'All matched',
+        'In one sentence each, explain "feature" vs "target" to your neighbour without using the words feature or target. Whoever explains it clearest wins the round.','vocab');
+    },500);
+  }
+}
+
+/* ============================================================
+   ACTIVITY 4 — BUILD THE DATASET
+============================================================ */
+function runBuild(){
+  const cols=BUILD.columns;
+  const roles={}; // col -> 'feature' | 'target' | null
+  cols.forEach(c=>roles[c]=null);
+  function draw(){
+    stage().innerHTML=`
+      <div class="card">
+        <div class="qtext" style="font-size:1.08rem">${BUILD.goal}</div>
+        <p style="color:var(--muted);font-size:.9rem;margin-bottom:8px">
+          Click a column header to cycle it: <b>Feature</b> → <b>Target</b> → none.
+          Mark the one column we\u2019re predicting as <b>Target</b>, and the useful inputs as <b>Feature</b>.</p>
+        <div class="legend">
+          <span><i style="background:var(--teal)"></i> Feature (input)</span>
+          <span><i style="background:var(--gold)"></i> Target (predict this)</span>
+          <span><i style="background:var(--navy)"></i> Not chosen</span>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="dsTable">
+          <thead><tr>${cols.map(c=>`<th data-col="${c}">${c}</th>`).join('')}</tr></thead>
+          <tbody>${BUILD.rows.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+        </div>
+        <div class="feedback" id="fb"></div>
+        <div class="rowbtns"><button class="btn" id="check">Check my dataset</button></div>
+      </div>`;
+    stage().querySelectorAll('th').forEach(th=>{
+      th.onclick=()=>{
+        const c=th.dataset.col;
+        roles[c]= roles[c]===null?'feature':roles[c]==='feature'?'target':null;
+        th.className=''; if(roles[c]==='feature')th.classList.add('pick-feature'); if(roles[c]==='target')th.classList.add('pick-target');
+        updateLabel(th,c);
+      };
+    });
+    document.getElementById('check').onclick=check;
+  }
+  function updateLabel(th,c){
+    th.textContent=c+(roles[c]==='feature'?'  ◧':roles[c]==='target'?'  ★':'');
+  }
+  function check(){
+    const targets=cols.filter(c=>roles[c]==='target');
+    const feats=cols.filter(c=>roles[c]==='feature');
+    let msg='', ok=false, cls='bad';
+    if(targets.length!==1){
+      msg='<b>Pick exactly one target.</b> Which single column is the actual answer we want to predict?';
+    } else if(targets[0]!==BUILD.target){
+      msg=`<b>Check the target.</b> We want to predict repayment — that\u2019s the "${BUILD.target}" column, not "${targets[0]}".`;
+    } else if(feats.includes(BUILD.target)){
+      msg='<b>The target can\u2019t also be a feature.</b> The answer column is never an input.';
+    } else if(feats.length===0){
+      msg='<b>Choose some features.</b> Which columns give clues about repayment?';
+    } else {
+      ok=true; cls='good';
+      const usedCity=feats.includes('City');
+      msg=`<b>Solid dataset!</b> Target = <b>${BUILD.target}</b>. Features = ${feats.join(', ')}. `+
+          (usedCity?'Note: "City" is debatable — could add signal, could add bias. Great thing to discuss.':'Tip: even "City" could be a feature — anything that helps predict, except the answer itself.');
+    }
+    addPoints(ok?18:-3, ok);
+    const fb=document.getElementById('fb'); fb.className='feedback show '+cls; fb.innerHTML=msg;
+    if(ok){
+      S.done['build']=100;
+      document.getElementById('check').disabled=true;
+      stage().querySelector('.card').insertAdjacentHTML('beforeend',
+        talkBox('Should "Job type" or "City" be used to decide loans? Some features are legal-but-risky and can bake in unfairness. As a group, pick one feature you\u2019d drop and say why.','ethics angle'));
+    }
+  }
+  draw();
+}
+
+/* ============================================================
+   ACTIVITY 5 — ML / AI / PROGRAM
+============================================================ */
+function runAiMl(){
+  let i=0, right=0;
+  function draw(){
+    setBar(Math.round(i/AIVSML.length*100));
+    const it=AIVSML[i];
+    stage().innerHTML=`
+      <div class="card">
+        <div class="qnum">Example ${i+1} of ${AIVSML.length}</div>
+        <div class="qtext">${it.q}</div>
+        <div class="opts">
+          ${Object.entries(AIVSML_BINS).map(([k,v],n)=>`
+            <button class="opt" data-a="${k}"><span class="key">${['①','②','③'][n]}</span>${v}</button>`).join('')}
+        </div>
+        <div class="feedback" id="fb"></div>
+        <div class="rowbtns"><button class="btn" id="next" disabled>Next →</button></div>
+      </div>`;
+    stage().querySelectorAll('.opt').forEach(o=>o.onclick=()=>choose(o));
+    document.getElementById('next').onclick=()=>{ i++; i<AIVSML.length?draw():finish(); };
+  }
+  function choose(o){
+    const it=AIVSML[i]; const correct=o.dataset.a===it.a;
+    stage().querySelectorAll('.opt').forEach(b=>{
+      b.disabled=true;
+      if(b.dataset.a===it.a)b.classList.add('correct');
+      else if(b===o)b.classList.add('wrong');
+    });
+    if(correct)right++;
+    addPoints(correct?10:-2,correct);
+    const fb=document.getElementById('fb');
+    fb.className='feedback show '+(correct?'good':'bad');
+    fb.innerHTML=`<b>${correct?'Yes — ':'Not quite. '}</b>${it.why}`;
+    document.getElementById('next').disabled=false;
+  }
+  function finish(){
+    setBar(100);
+    const pct=Math.round(right/AIVSML.length*100);
+    stage().innerHTML=resultView(pct,right,AIVSML.length,'🌐',null,
+      'Where\u2019s the line between "a program", "ML" and "AI"? Agree on a one-sentence test your group could use to decide any new example.','aivsml');
+  }
+  draw();
+}
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+============================================================ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') goHub();
+  if(document.getElementById('hub').classList.contains('active')){
+    const n=parseInt(e.key); if(n>=1&&n<=ACTIVITIES.length) openActivity(ACTIVITIES[n-1].id);
+  }
+});
+
+renderHub();
+</script>
+</body>
+</html>
