@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apple, Fish, Grapes — 3 Ways ML Sees Them</title>
+<style>
+  :root{
+    --ink:#263852; --muted:#5B7A82; --paper:#F6F9FA; --card:#fff; --line:#DCE6EA;
+    --green:#2E7D5B; --green-l:#E4F6EC; --green-bd:#8FD3B0;
+    --blue:#008ACF; --blue-l:#E1F0FB; --blue-bd:#8FC9EC;
+    --red:#D35D47; --red-l:#FCE9E4; --red-bd:#EDB3A6;
+    --purple:#8A7CBB;
+    --shadow:0 6px 20px rgba(38,56,82,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(1000px 500px at 90% -10%, #eaf6f4 0%, transparent 60%),
+      var(--paper);
+    color:var(--ink); line-height:1.5; padding:28px 16px 60px; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px;margin:0 auto}
+  header{text-align:center;margin-bottom:8px}
+  header h1{font-size:1.8rem;color:var(--ink);letter-spacing:-.01em}
+  header p{color:var(--muted);font-size:1rem;margin-top:4px}
+  .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:16px 0 24px;font-size:.85rem;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+  .block{
+    border-radius:18px;padding:22px;margin-bottom:22px;box-shadow:var(--shadow);
+    border:2px solid var(--line);background:var(--card);position:relative;overflow:hidden;
+  }
+  .block.green{background:linear-gradient(180deg,var(--green-l),#fff 60%);border-color:var(--green-bd)}
+  .block.blue{background:linear-gradient(180deg,var(--blue-l),#fff 60%);border-color:var(--blue-bd)}
+  .block.red{background:linear-gradient(180deg,var(--red-l),#fff 60%);border-color:var(--red-bd)}
+  .btitle{font-size:1.25rem;font-weight:800;margin-bottom:2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .green .btitle{color:var(--green)} .blue .btitle{color:var(--blue)} .red .btitle{color:var(--red)}
+  .tag{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px;color:#fff}
+  .green .tag{background:var(--green)} .blue .tag{background:var(--blue)} .red .tag{background:var(--red)}
+  .bsub{color:var(--muted);font-size:.95rem;margin:6px 0 18px;max-width:80ch}
+  .bsub b{color:var(--ink)}
+
+  .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  @media(max-width:720px){.row{grid-template-columns:1fr}}
+  .bin{background:#fff;border:2px solid var(--line);border-radius:14px;padding:16px 12px 20px;text-align:center}
+  .bin.solid-green{border-color:var(--green)}
+  .bin.solid-blue{border-color:var(--blue)}
+  .bin.solid-purple{border-color:var(--purple)}
+  .bin.dashed{border-style:dashed;border-color:var(--blue)}
+  .binlabel{font-size:.9rem;font-weight:700;margin-bottom:10px;letter-spacing:.02em}
+  .solid-green .binlabel{color:var(--green)}
+  .solid-blue .binlabel{color:var(--blue)}
+  .solid-purple .binlabel{color:var(--purple)}
+  .dashed .binlabel{color:var(--blue)}
+  .items{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;font-size:2.1rem;line-height:1.1}
+  .items .lab{font-size:.7rem;color:var(--muted);display:block;margin-top:-4px;font-weight:600}
+  .fruit{display:inline-flex;flex-direction:column;align-items:center}
+
+  /* anomaly layout */
+  .anomaly{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .normalzone{
+    flex:1 1 420px;border:2px solid var(--green);border-radius:50%/38%;
+    background:#fff;padding:22px 20px;text-align:center;min-width:300px;
+  }
+  .normalzone .binlabel{color:var(--green)}
+  .odd{display:flex;flex-direction:column;gap:18px}
+  .oddcard{display:flex;align-items:center;gap:12px}
+  .oddcard .arrow{color:var(--red);font-size:1.6rem;font-weight:800}
+  .oddcard .big{font-size:2.4rem}
+  .oddcard .flag{font-size:.72rem;font-weight:800;color:var(--red);background:var(--red-l);padding:3px 9px;border-radius:999px;border:1px solid var(--red-bd)}
+
+  .keyline{background:#fff;border:2px solid var(--line);border-left:6px solid;border-radius:10px;padding:12px 16px;margin-top:16px;font-size:.95rem}
+  .green .keyline{border-left-color:var(--green)}
+  .blue .keyline{border-left-color:var(--blue)}
+  .red .keyline{border-left-color:var(--red)}
+  .keyline b{color:var(--ink)}
+
+  .summary{background:var(--ink);color:#fff;border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+  .summary h2{font-size:1.2rem;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.15);vertical-align:top}
+  th{color:#9fe0d4;font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+  td b{color:#fff}
+  .oneliner{margin-top:16px;font-size:.98rem;line-height:1.7}
+  .oneliner span{display:block}
+  .g{color:#7DE0AC} .b{color:#7FC9F0} .r{color:#F2A090}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🍎 🐟 🍇 &nbsp;Apple, Fish, Grapes — 3 Ways ML Sees Them</h1>
+    <p>The same three things, handled by three different kinds of machine learning.</p>
+  </header>
+
+  <div class="legend">
+    <span><i style="background:var(--green)"></i> Classification (labels)</span>
+    <span><i style="background:var(--blue)"></i> Clustering (no labels)</span>
+    <span><i style="background:var(--red)"></i> Anomaly detection (odd ones)</span>
+  </div>
+
+  <!-- 1. CLASSIFICATION -->
+  <section class="block green">
+    <div class="btitle">1 · Classification <span class="tag">labels ARE given</span></div>
+    <p class="bsub">We teach it in advance: <b>“this is an apple, this is a fish, this is grapes.”</b> Then it puts a NEW picture into one of the known boxes. <b>It knows the names.</b></p>
+    <div class="row">
+      <div class="bin solid-green">
+        <div class="binlabel">APPLE box</div>
+        <div class="items"><span>🍎</span><span>🍎</span><span>🍎</span></div>
+      </div>
+      <div class="bin solid-blue">
+        <div class="binlabel">FISH box</div>
+        <div class="items"><span>🐟</span><span>🐟</span><span>🐟</span></div>
+      </div>
+      <div class="bin solid-purple">
+        <div class="binlabel">GRAPES box</div>
+        <div class="items"><span>🍇</span><span>🍇</span><span>🍇</span></div>
+      </div>
+    </div>
+    <div class="keyline"><b>How to recognise it:</b> we already know the names, so the machine sorts each new item into a labelled box. Question it answers: <i>“Which known type is this?”</i></div>
+  </section>
+
+  <!-- 2. CLUSTERING -->
+  <section class="block blue">
+    <div class="btitle">2 · Clustering <span class="tag">NO labels</span></div>
+    <p class="bsub">Nobody says “this is an apple.” The machine groups similar things <b>by itself</b>. It does <b>not know the names</b> — it just says “Group 1, Group 2, Group 3.” We add the names later.</p>
+    <div class="row">
+      <div class="bin dashed">
+        <div class="binlabel">GROUP 1</div>
+        <div class="items"><span>🍎</span><span>🍎</span><span>🍎</span></div>
+      </div>
+      <div class="bin dashed">
+        <div class="binlabel">GROUP 2</div>
+        <div class="items"><span>🐟</span><span>🐟</span><span>🐟</span></div>
+      </div>
+      <div class="bin dashed">
+        <div class="binlabel">GROUP 3</div>
+        <div class="items"><span>🍇</span><span>🍇</span><span>🍇</span></div>
+      </div>
+    </div>
+    <div class="keyline"><b>How to recognise it:</b> no names given — it groups by similarity. Question it answers: <i>“What natural groups are hiding in the data?”</i></div>
+  </section>
+
+  <!-- 3. ANOMALY DETECTION -->
+  <section class="block red">
+    <div class="btitle">3 · Anomaly Detection <span class="tag">find the odd ones</span></div>
+    <p class="bsub">Most items are <b>normal</b> (apples). The machine learns what “normal” looks like and flags anything that <b>doesn’t fit</b>. Here, the fish and the grapes are the strange ones.</p>
+    <div class="anomaly">
+      <div class="normalzone">
+        <div class="binlabel">NORMAL zone (apples — the majority)</div>
+        <div class="items">
+          <span>🍎</span><span>🍎</span><span>🍎</span><span>🍎</span><span>🍎</span><span>🍎</span>
+        </div>
+      </div>
+      <div class="odd">
+        <div class="oddcard"><span class="arrow">→</span><span class="big">🐟</span><span class="flag">ODD ONE OUT!</span></div>
+        <div class="oddcard"><span class="arrow">→</span><span class="big">🍇</span><span class="flag">ODD ONE OUT!</span></div>
+      </div>
+    </div>
+    <div class="keyline"><b>How to recognise it:</b> it knows “normal,” and flags the few that don’t match. It doesn’t say “this is a fish” — it says <i>“this one is not normal, check it!”</i></div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="summary">
+    <h2>⭐ The key difference in one table</h2>
+    <table>
+      <tr><th>Method</th><th>What it does</th><th>With apple / fish / grapes</th></tr>
+      <tr><td><b>Classification</b></td><td>Puts items into <b>known, named</b> boxes</td><td>Sorts each into the “apple / fish / grapes” box — <b>it knows the names</b></td></tr>
+      <tr><td><b>Clustering</b></td><td>Groups <b>similar</b> items, no names</td><td>Makes 3 groups but calls them “Group 1, 2, 3” — <b>doesn’t know the names</b></td></tr>
+      <tr><td><b>Anomaly detection</b></td><td>Flags the <b>odd ones out</b></td><td>Among many apples, marks the fish &amp; grapes as “strange”</td></tr>
+    </table>
+    <div class="oneliner">
+      <span class="g"><b>Classification</b> — “I know the names, I put each into its box.”</span>
+      <span class="b"><b>Clustering</b> — “I don’t know the names, I gather the similar ones.”</span>
+      <span class="r"><b>Anomaly detection</b> — “I know what’s normal, I find what doesn’t fit.”</span>
+    </div>
+  </section>
+</div>
+</body>
+</html>
