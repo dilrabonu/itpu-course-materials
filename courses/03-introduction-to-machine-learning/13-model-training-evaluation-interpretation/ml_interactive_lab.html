@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Lab — Training, Overfitting, Cross-Validation & Metrics</title>
+<style>
+  :root{
+    --navy:#21295C; --deep:#065A82; --teal:#1C7293; --mint:#9AD1D4;
+    --ink:#1B1F3B; --cloud:#EEF4F7; --gold:#E8A33D; --red:#C0392B; --green:#2E8B57;
+    --line:#D6E2E8; --muted:#5A6B78;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);
+    background:linear-gradient(180deg,#f7fbfc,#eef4f7);line-height:1.55;padding:0 0 60px}
+  header{background:var(--navy);color:#fff;padding:34px 22px 30px;position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;right:-90px;top:-90px;width:280px;height:280px;
+    border-radius:50%;border:2px solid rgba(154,209,212,.35)}
+  header .wrap{max-width:1080px;margin:0 auto;position:relative;z-index:1}
+  header h1{font-size:29px;font-weight:800;letter-spacing:-.3px}
+  header p{color:var(--mint);margin-top:6px;font-size:15px}
+  .kicker{font-size:12px;letter-spacing:2px;color:var(--mint);font-weight:700;text-transform:uppercase}
+  main{max-width:1080px;margin:0 auto;padding:0 22px}
+  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:22px 0 18px;position:sticky;top:0;
+    background:rgba(247,251,252,.94);backdrop-filter:blur(6px);padding:10px 0;z-index:20;border-bottom:1px solid var(--line)}
+  nav.tabs button{border:1.5px solid var(--line);background:#fff;color:var(--muted);font-size:14px;
+    font-weight:600;padding:9px 16px;border-radius:9px;cursor:pointer;transition:.15s}
+  nav.tabs button:hover{border-color:var(--teal);color:var(--teal)}
+  nav.tabs button.active{background:var(--deep);color:#fff;border-color:var(--deep)}
+  .panel{display:none;animation:fade .25s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:20px;
+    box-shadow:0 1px 3px rgba(33,41,92,.05)}
+  .card h2{font-size:22px;color:var(--navy);margin-bottom:4px}
+  .card .sub{color:var(--muted);font-size:14.5px;margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+  canvas{width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;display:block}
+  .ctrl{margin:14px 0}
+  .ctrl label{display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:6px}
+  .ctrl label span{color:var(--deep);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--deep);height:5px}
+  .readout{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .stat{background:var(--cloud);border-radius:10px;padding:12px 14px}
+  .stat .k{font-size:12px;color:var(--muted);font-weight:600}
+  .stat .v{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
+  .verdict{margin-top:14px;padding:12px 16px;border-radius:10px;font-weight:700;font-size:15px;text-align:center}
+  .btn{background:var(--deep);color:#fff;border:none;border-radius:9px;padding:10px 16px;font-size:14px;
+    font-weight:600;cursor:pointer;transition:.15s}
+  .btn:hover{background:var(--navy)}
+  .btn.ghost{background:#fff;color:var(--deep);border:1.5px solid var(--deep)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:10px}
+  .legend i{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+  .matrix{display:grid;grid-template-columns:90px 1fr 1fr;gap:8px;max-width:420px;margin:8px 0}
+  .matrix .h{font-size:12px;font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:center;text-align:center}
+  .mcell{border-radius:10px;padding:14px 8px;text-align:center;color:#fff}
+  .mcell .lab{font-size:11px;opacity:.9}
+  .mcell .num{font-size:26px;font-weight:800}
+  .mcell input{width:70px;font-size:20px;font-weight:800;text-align:center;border:none;border-radius:6px;
+    padding:4px;margin-top:4px;background:rgba(255,255,255,.9);color:var(--ink)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;margin-left:6px}
+  table.metrics{width:100%;border-collapse:collapse;margin-top:6px}
+  table.metrics td{padding:10px 8px;border-bottom:1px solid var(--line);font-size:14.5px}
+  table.metrics td:first-child{font-weight:700;color:var(--deep);width:34%}
+  table.metrics td.val{font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;color:var(--navy);width:22%}
+  table.metrics td.exp{color:var(--muted);font-size:13px}
+  .foldwrap{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .foldrow{display:flex;gap:5px;align-items:center}
+  .foldrow .rl{width:78px;font-size:12.5px;font-weight:700;color:var(--navy)}
+  .fblock{flex:1;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff}
+  .note{background:#fff7ea;border-left:4px solid var(--gold);padding:12px 16px;border-radius:8px;
+    font-size:14px;margin-top:14px;color:#6b4d16}
+  .pill{display:inline-flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+  .pill button{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;
+    font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .pill button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+  footer{max-width:1080px;margin:20px auto 0;padding:0 22px;color:var(--muted);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="kicker">Machine Learning · Interactive Lab</div>
+  <h1>Training, Overfitting, Cross-Validation & Metrics</h1>
+  <p>Move the sliders. Watch what happens. Learn by doing.</p>
+</div></header>
+
+<main>
+<nav class="tabs">
+  <button class="active" data-t="fit">1 · Overfitting</button>
+  <button data-t="bv">2 · Bias–Variance</button>
+  <button data-t="cv">3 · Cross-Validation</button>
+  <button data-t="cm">4 · Classification metrics</button>
+  <button data-t="reg">5 · Regression metrics</button>
+</nav>
+
+<!-- ============ PANEL 1: OVERFITTING ============ -->
+<section class="panel active" id="fit">
+  <div class="card">
+    <h2>Overfitting vs Underfitting playground</h2>
+    <p class="sub">We fit a polynomial of degree <b id="degLab">3</b> to noisy data. Low degree = too simple (underfit). High degree = memorizes noise (overfit). Watch the <b>train</b> and <b>test</b> errors.</p>
+    <div class="grid2">
+      <div>
+        <canvas id="fitCanvas" height="330"></canvas>
+        <div class="legend">
+          <span><i style="background:#21295C"></i>training points</span>
+          <span><i style="background:#E8A33D"></i>test points</span>
+          <span><i style="background:#065A82"></i>model curve</span>
+          <span><i style="background:#2E8B57;height:2px;border-bottom:2px dashed #2E8B57;background:none"></i>true pattern</span>
+        </div>
+      </div>
+      <div>
+        <div class="ctrl">
+          <label>Model complexity (polynomial degree) <span id="degVal">3</span></label>
+          <input type="range" id="deg" min="1" max="14" value="3">
+        </div>
+        <div class="ctrl">
+          <label>Noise in data <span id="noiseVal">0.30</span></label>
+          <input type="range" id="noise" min="0" max="80" value="30">
+        </div>
+        <button class="btn ghost" id="resample">↻ Resample data</button>
+        <div class="readout">
+          <div class="stat"><div class="k">Training error (RMSE)</div><div class="v" id="trainErr">–</div></div>
+          <div class="stat"><div class="k">Test error (RMSE)</div><div class="v" id="testErr">–</div></div>
+        </div>
+        <div class="verdict" id="fitVerdict"></div>
+        <div class="note">Diagnosis rule: <b>both errors high</b> → underfitting. <b>Train low but test high</b> (big gap) → overfitting. The goal is the lowest <i>test</i> error.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PANEL 2: BIAS-VARIANCE ============ -->
+<section class="panel" id="bv">
+  <div class="card">
+    <h2>The bias–variance trade-off</h2>
+    <p class="sub">As complexity rises, <b>bias²</b> falls but <b>variance</b> grows. Total error = bias² + variance + irreducible noise. Drag the slider to place your model and find the sweet spot.</p>
+    <div class="grid2">
+      <div><canvas id="bvCanvas" height="330"></canvas>
+        <div class="legend">
+          <span><i style="background:#1C7293"></i>Bias²</span>
+          <span><i style="background:#E8A33D"></i>Variance</span>
+          <span><i style="background:#21295C"></i>Total error</span>
+        </div>
+      </div>
+      <div>
+        <div class="ctrl">
+          <label>Your model's complexity <span id="bvVal">5</span></label>
+          <input type="range" id="bvSlider" min="1" max="15" value="5">
+        </div>
+        <div class="readout">
+          <div class="stat"><div class="k">Bias²</div><div class="v" id="biasV" style="color:var(--teal)">–</div></div>
+          <div class="stat"><div class="k">Variance</div><div class="v" id="varV" style="color:var(--gold)">–</div></div>
+        </div>
+        <div class="readout" style="grid-template-columns:1fr">
+          <div class="stat"><div class="k">Total error</div><div class="v" id="totV" style="color:var(--navy)">–</div></div>
+        </div>
+        <div class="verdict" id="bvVerdict"></div>
+        <div class="note">Underfitting lives on the <b>left</b> (high bias). Overfitting on the <b>right</b> (high variance). The minimum of the dark curve is the model you want.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PANEL 3: CROSS-VALIDATION ============ -->
+<section class="panel" id="cv">
+  <div class="card">
+    <h2>Cross-validation visualizer</h2>
+    <p class="sub">Pick a strategy and the number of folds. Each row is one round: <b style="color:var(--gold)">gold</b> = tested, <b style="color:var(--deep)">blue</b> = trained. See how every data point gets used.</p>
+    <div class="pill" id="cvStrat">
+      <button class="on" data-s="kfold">K-Fold</button>
+      <button data-s="stratified">Stratified K-Fold</button>
+      <button data-s="loo">Leave-One-Out</button>
+      <button data-s="group">Grouped K-Fold</button>
+      <button data-s="ts">Time-Series</button>
+    </div>
+    <div class="ctrl" style="max-width:360px">
+      <label>Number of folds (K) <span id="kVal">5</span></label>
+      <input type="range" id="kSlider" min="2" max="8" value="5">
+    </div>
+    <div class="foldwrap" id="foldView"></div>
+    <div class="verdict" id="cvVerdict" style="background:var(--cloud);color:var(--navy)"></div>
+    <div class="note" id="cvNote"></div>
+  </div>
+</section>
+
+<!-- ============ PANEL 4: CLASSIFICATION METRICS ============ -->
+<section class="panel" id="cm">
+  <div class="card">
+    <h2>Confusion-matrix metrics calculator</h2>
+    <p class="sub">Type the four counts. Every classification metric updates live. Try an <b>imbalanced</b> case to see why accuracy can lie.</p>
+    <div class="grid2">
+      <div>
+        <div class="matrix">
+          <div class="h"></div><div class="h">Predicted&nbsp;+</div><div class="h">Predicted&nbsp;−</div>
+          <div class="h">Actual +</div>
+          <div class="mcell" style="background:#2E8B57"><div class="lab">True Positive</div><input id="tp" type="number" value="40" min="0"></div>
+          <div class="mcell" style="background:#C0392B"><div class="lab">False Negative</div><input id="fn" type="number" value="5" min="0"></div>
+          <div class="h">Actual −</div>
+          <div class="mcell" style="background:#C0392B"><div class="lab">False Positive</div><input id="fp" type="number" value="10" min="0"></div>
+          <div class="mcell" style="background:#2E8B57"><div class="lab">True Negative</div><input id="tn" type="number" value="45" min="0"></div>
+        </div>
+        <div class="pill">
+          <button onclick="setCM(40,10,5,45)">Balanced</button>
+          <button onclick="setCM(5,2,3,990)">Rare disease (imbalanced)</button>
+          <button onclick="setCM(90,0,10,0)">Predicts all positive</button>
+        </div>
+      </div>
+      <div>
+        <table class="metrics">
+          <tr><td>Accuracy</td><td class="val" id="mAcc">–</td><td class="exp">(TP+TN)/all</td></tr>
+          <tr><td>Precision</td><td class="val" id="mPrec">–</td><td class="exp">TP/(TP+FP)</td></tr>
+          <tr><td>Recall</td><td class="val" id="mRec">–</td><td class="exp">TP/(TP+FN)</td></tr>
+          <tr><td>F1 score</td><td class="val" id="mF1">–</td><td class="exp">2·P·R/(P+R)</td></tr>
+          <tr><td>Specificity</td><td class="val" id="mSpec">–</td><td class="exp">TN/(TN+FP)</td></tr>
+        </table>
+        <div class="verdict" id="cmVerdict"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PANEL 5: REGRESSION METRICS ============ -->
+<section class="panel" id="reg">
+  <div class="card">
+    <h2>Regression metrics calculator</h2>
+    <p class="sub">Edit actual and predicted values (comma-separated). See how RMSE punishes big errors more than MAE.</p>
+    <div class="grid2">
+      <div>
+        <div class="ctrl"><label>Actual values (y)</label>
+          <input type="text" id="yTrue" value="200, 250, 300, 280, 320" style="width:100%;padding:9px;border:1.5px solid var(--line);border-radius:8px;font-size:14px"></div>
+        <div class="ctrl"><label>Predicted values (ŷ)</label>
+          <input type="text" id="yPred" value="210, 240, 330, 275, 300" style="width:100%;padding:9px;border:1.5px solid var(--line);border-radius:8px;font-size:14px"></div>
+        <button class="btn" onclick="calcReg()">Calculate</button>
+        <canvas id="regCanvas" height="200" style="margin-top:16px"></canvas>
+        <div class="legend"><span><i style="background:#21295C"></i>actual</span><span><i style="background:#065A82"></i>predicted</span><span><i style="background:#C0392B"></i>error</span></div>
+      </div>
+      <div>
+        <table class="metrics">
+          <tr><td>MAE</td><td class="val" id="rMAE">–</td><td class="exp">mean |y−ŷ|</td></tr>
+          <tr><td>MSE</td><td class="val" id="rMSE">–</td><td class="exp">mean (y−ŷ)²</td></tr>
+          <tr><td>RMSE</td><td class="val" id="rRMSE">–</td><td class="exp">√MSE, same units</td></tr>
+          <tr><td>MAPE</td><td class="val" id="rMAPE">–</td><td class="exp">mean |y−ŷ|/|y|</td></tr>
+          <tr><td>R²</td><td class="val" id="rR2">–</td><td class="exp">variance explained</td></tr>
+        </table>
+        <div class="verdict" id="regVerdict"></div>
+        <div class="note">Whenever errors vary in size, <b>RMSE &gt; MAE</b>. The bigger the gap, the more large outliers you have.</div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<footer>ML Interactive Lab · built for ITPU · use live in Teams — share your screen and let students call out the sliders.</footer>
+
+<script>
+// ---------- tabs ----------
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById(b.dataset.t).classList.add('active');
+  if(b.dataset.t==='bv') drawBV();
+  if(b.dataset.t==='cv') drawCV();
+});
+const C={navy:'#21295C',deep:'#065A82',teal:'#1C7293',gold:'#E8A33D',red:'#C0392B',green:'#2E8B57',line:'#D6E2E8',muted:'#5A6B78'};
+function hd(cv){const r=cv.getBoundingClientRect();const d=window.devicePixelRatio||1;
+  cv.width=r.width*d;cv.height=r.height*d;const x=cv.getContext('2d');x.scale(d,d);return{x,w:r.width,h:r.height};}
+
+// ============ 1. OVERFITTING ============
+let trainPts=[],testPts=[];
+function trueF(x){return Math.sin(x*3.1)*0.5+0.5;} // pattern on [0,1]
+function genData(){
+  const noise=(+document.getElementById('noise').value)/100*0.5;
+  trainPts=[];testPts=[];
+  for(let i=0;i<16;i++){const x=Math.random();trainPts.push([x,trueF(x)+(Math.random()-.5)*2*noise]);}
+  for(let i=0;i<10;i++){const x=Math.random();testPts.push([x,trueF(x)+(Math.random()-.5)*2*noise]);}
+}
+// polynomial least squares
+function polyfit(pts,deg){
+  const n=deg+1;const X=[],y=[];
+  pts.forEach(p=>{const row=[];for(let j=0;j<n;j++)row.push(Math.pow(p[0],j));X.push(row);y.push(p[1]);});
+  // normal equations (X^T X) c = X^T y  with tiny ridge for stability
+  const A=[],b=[];
+  for(let i=0;i<n;i++){A.push(new Array(n).fill(0));b.push(0);
+    for(let k=0;k<pts.length;k++){for(let j=0;j<n;j++)A[i][j]+=X[k][i]*X[k][j];b[i]+=X[k][i]*y[k];}
+    A[i][i]+=1e-6;}
+  return solve(A,b);
+}
+function solve(A,b){const n=b.length;A=A.map(r=>r.slice());b=b.slice();
+  for(let i=0;i<n;i++){let mx=i;for(let k=i+1;k<n;k++)if(Math.abs(A[k][i])>Math.abs(A[mx][i]))mx=k;
+    [A[i],A[mx]]=[A[mx],A[i]];[b[i],b[mx]]=[b[mx],b[i]];
+    for(let k=i+1;k<n;k++){const f=A[k][i]/A[i][i];for(let j=i;j<n;j++)A[k][j]-=f*A[i][j];b[k]-=f*b[i];}}
+  const x=new Array(n).fill(0);
+  for(let i=n-1;i>=0;i--){let s=b[i];for(let j=i+1;j<n;j++)s-=A[i][j]*x[j];x[i]=s/A[i][i];}return x;}
+function polyval(c,x){let s=0;for(let j=0;j<c.length;j++)s+=c[j]*Math.pow(x,j);return s;}
+function rmse(pts,c){let s=0;pts.forEach(p=>s+=(p[1]-polyval(c,p[0]))**2);return Math.sqrt(s/pts.length);}
+
+function drawFit(){
+  const deg=+document.getElementById('deg').value;
+  document.getElementById('degVal').textContent=deg;
+  document.getElementById('degLab').textContent=deg;
+  document.getElementById('noiseVal').textContent=((+document.getElementById('noise').value)/100*0.5).toFixed(2);
+  const c=polyfit(trainPts,deg);
+  const cv=document.getElementById('fitCanvas');const {x,w,h}=hd(cv);
+  const pad=30,W=w-pad*2,H=h-pad*2;
+  const X=t=>pad+t*W, Y=v=>pad+(1-Math.max(-0.3,Math.min(1.3,v))/1.3*1)*H*0.77+H*0.0;
+  const Yv=v=>pad+H-((v+0.3)/1.6)*H;
+  x.clearRect(0,0,w,h);
+  // axes
+  x.strokeStyle=C.line;x.lineWidth=1;x.strokeRect(pad,pad,W,H);
+  // true pattern
+  x.strokeStyle=C.green;x.setLineDash([6,5]);x.lineWidth=2;x.beginPath();
+  for(let t=0;t<=1;t+=0.01){const px=X(t),py=Yv(trueF(t));t===0?x.moveTo(px,py):x.lineTo(px,py);}x.stroke();x.setLineDash([]);
+  // model curve
+  x.strokeStyle=C.deep;x.lineWidth=2.5;x.beginPath();
+  for(let t=0;t<=1;t+=0.005){const py=Yv(polyval(c,t));const px=X(t);t===0?x.moveTo(px,py):x.lineTo(px,py);}x.stroke();
+  // points
+  trainPts.forEach(p=>{x.fillStyle=C.navy;x.beginPath();x.arc(X(p[0]),Yv(p[1]),4,0,7);x.fill();});
+  testPts.forEach(p=>{x.fillStyle=C.gold;x.beginPath();x.arc(X(p[0]),Yv(p[1]),4,0,7);x.fill();});
+  const tr=rmse(trainPts,c),te=rmse(testPts,c);
+  document.getElementById('trainErr').textContent=tr.toFixed(3);
+  document.getElementById('testErr').textContent=te.toFixed(3);
+  const v=document.getElementById('fitVerdict');const gap=te-tr;
+  if(tr>0.22){v.textContent='⚠ UNDERFITTING — model too simple, both errors high';v.style.background='#fbe6e4';v.style.color=C.red;}
+  else if(gap>0.18||te>0.35){v.textContent='⚠ OVERFITTING — memorizing noise, test error blew up';v.style.background='#fff3d6';v.style.color='#8a5a00';}
+  else{v.textContent='✓ GOOD FIT — low error on unseen data';v.style.background='#e3f1e9';v.style.color=C.green;}
+}
+['deg','noise'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{if(id==='noise')genData();drawFit();}));
+document.getElementById('resample').onclick=()=>{genData();drawFit();};
+genData();drawFit();
+
+// ============ 2. BIAS-VARIANCE ============
+function biasAt(c){return 7/(c+0.7);}          // falls with complexity
+function varAt(c){return 0.09*Math.pow(c,1.65);}// rises with complexity
+function drawBV(){
+  const cv=document.getElementById('bvCanvas');const {x,w,h}=hd(cv);
+  const pad=38,W=w-pad*2,H=h-pad*2;
+  const maxC=15, maxE=12;
+  const X=c=>pad+(c-1)/(maxC-1)*W, Y=e=>pad+H-Math.min(e,maxE)/maxE*H;
+  x.clearRect(0,0,w,h);
+  x.strokeStyle=C.line;x.lineWidth=1;
+  x.beginPath();x.moveTo(pad,pad);x.lineTo(pad,pad+H);x.lineTo(pad+W,pad+H);x.stroke();
+  x.fillStyle=C.muted;x.font='11px Segoe UI';x.fillText('error',4,pad+8);x.fillText('complexity →',pad+W-72,pad+H+22);
+  function curve(fn,col){x.strokeStyle=col;x.lineWidth=3;x.beginPath();
+    for(let c=1;c<=maxC;c+=0.1){const px=X(c),py=Y(fn(c));c===1?x.moveTo(px,py):x.lineTo(px,py);}x.stroke();}
+  curve(biasAt,C.teal);curve(varAt,C.gold);curve(c=>biasAt(c)+varAt(c),C.navy);
+  const sel=+document.getElementById('bvSlider').value;
+  const b=biasAt(sel),va=varAt(sel),tot=b+va;
+  x.strokeStyle=C.red;x.setLineDash([5,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(X(sel),pad);x.lineTo(X(sel),pad+H);x.stroke();x.setLineDash([]);
+  x.fillStyle=C.red;x.beginPath();x.arc(X(sel),Y(tot),6,0,7);x.fill();
+  // mark minimum
+  let minC=1,minV=1e9;for(let c=1;c<=maxC;c+=0.05){const t=biasAt(c)+varAt(c);if(t<minV){minV=t;minC=c;}}
+  x.strokeStyle=C.green;x.lineWidth=1.5;x.setLineDash([2,3]);x.beginPath();x.moveTo(X(minC),Y(minV));x.lineTo(X(minC),pad+H);x.stroke();x.setLineDash([]);
+  x.fillStyle=C.green;x.font='11px Segoe UI';x.fillText('sweet spot',X(minC)-26,Y(minV)-10);
+  document.getElementById('bvVal').textContent=sel;
+  document.getElementById('biasV').textContent=b.toFixed(2);
+  document.getElementById('varV').textContent=va.toFixed(2);
+  document.getElementById('totV').textContent=tot.toFixed(2);
+  const v=document.getElementById('bvVerdict');
+  if(sel<minC-1.5){v.textContent='← Too simple: high bias (underfitting)';v.style.background='#e7f0f4';v.style.color=C.teal;}
+  else if(sel>minC+1.5){v.textContent='Too complex: high variance (overfitting) →';v.style.background='#fff3d6';v.style.color='#8a5a00';}
+  else{v.textContent='✓ Near the sweet spot — balanced';v.style.background='#e3f1e9';v.style.color=C.green;}
+}
+document.getElementById('bvSlider').addEventListener('input',drawBV);
+
+// ============ 3. CROSS-VALIDATION ============
+let cvStrat='kfold';
+document.querySelectorAll('#cvStrat button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#cvStrat button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');cvStrat=b.dataset.s;drawCV();});
+document.getElementById('kSlider').addEventListener('input',drawCV);
+const cvNotes={
+  kfold:'Standard choice for independent (i.i.d.) data. Every fold is tested exactly once.',
+  stratified:'Keeps the class ratio identical in every fold — essential for imbalanced classification.',
+  loo:'K equals the number of samples. Maximum training data, but expensive. Best for tiny datasets.',
+  group:'Whole groups (e.g. all rows from one patient) stay together — prevents leakage across train/test.',
+  ts:'Respects time order: always train on the past, test on the future. Never shuffle time-series data.'
+};
+function drawCV(){
+  const N=12; let K=+document.getElementById('kSlider').value;
+  const kEl=document.getElementById('kSlider');
+  if(cvStrat==='loo'){K=N;kEl.disabled=true;} else {kEl.disabled=false;}
+  document.getElementById('kVal').textContent=(cvStrat==='loo')?N+' (=N)':K;
+  const view=document.getElementById('foldView');view.innerHTML='';
+  const rounds=(cvStrat==='loo')?N:K;
+  const showRounds=Math.min(rounds,8);
+  // groups for grouped: 4 groups; classes for stratified: alternate
+  for(let r=0;r<showRounds;r++){
+    const row=document.createElement('div');row.className='foldrow';
+    const rl=document.createElement('div');rl.className='rl';rl.textContent='Round '+(r+1);row.appendChild(rl);
+    for(let i=0;i<N;i++){
+      const blk=document.createElement('div');blk.className='fblock';
+      let isTest=false;
+      if(cvStrat==='kfold'||cvStrat==='stratified'){isTest=(i%K)===r;}
+      else if(cvStrat==='loo'){isTest=(i===r);}
+      else if(cvStrat==='group'){const g=Math.floor(i/(N/4));isTest=(g%K)===(r%K)&&r<4? g===r: (g%K===r%K);
+        const grp=Math.floor(i/3);isTest=(grp===r%4);}
+      else if(cvStrat==='ts'){const cut=Math.floor(N*(r+1)/(K+1));isTest=(i>=cut&&i<cut+Math.ceil(N/(K+1)));
+        if(i>=cut+Math.ceil(N/(K+1)))blk.style.opacity='.25';}
+      blk.style.background=isTest?C.gold:C.deep;
+      blk.textContent=isTest?'test':'';
+      if(cvStrat==='stratified'){blk.textContent=(i%2===0?'A':'B');blk.style.fontSize='10px';}
+      if(cvStrat==='group'){blk.textContent='G'+(Math.floor(i/3)+1);blk.style.fontSize='10px';}
+      row.appendChild(blk);
+    }
+    view.appendChild(row);
+  }
+  if(rounds>showRounds){const m=document.createElement('div');m.style.cssText='font-size:12px;color:var(--muted);padding-left:80px';m.textContent='… '+(rounds-showRounds)+' more rounds';view.appendChild(m);}
+  document.getElementById('cvVerdict').textContent=(cvStrat==='ts')?'Final score = average across rounds · past → future only':'Final score = mean ± std across '+rounds+' rounds';
+  document.getElementById('cvNote').innerHTML=cvNotes[cvStrat];
+}
+drawCV();
+
+// ============ 4. CLASSIFICATION METRICS ============
+function setCM(tp,fp,fn,tn){document.getElementById('tp').value=tp;document.getElementById('fp').value=fp;
+  document.getElementById('fn').value=fn;document.getElementById('tn').value=tn;calcCM();}
+function calcCM(){
+  const tp=+tp_.value||0,fp=+fp_.value||0,fn=+fn_.value||0,tn=+tn_.value||0;
+  const all=tp+fp+fn+tn||1;
+  const acc=(tp+tn)/all, prec=tp/(tp+fp||1), rec=tp/(tp+fn||1),
+        f1=(prec+rec)?2*prec*rec/(prec+rec):0, spec=tn/(tn+fp||1);
+  const f=v=>isFinite(v)?v.toFixed(3):'–';
+  mAcc.textContent=f(acc);mPrec.textContent=f(prec);mRec.textContent=f(rec);mF1.textContent=f(f1);mSpec.textContent=f(spec);
+  const v=document.getElementById('cmVerdict');
+  const posRate=(tp+fn)/all;
+  if(posRate<0.15&&acc>0.9&&rec<0.6){
+    v.innerHTML='⚠ Accuracy looks high ('+f(acc)+') but recall is low ('+f(rec)+'). On imbalanced data, <b>accuracy lies</b> — watch recall & F1.';
+    v.style.background='#fff3d6';v.style.color='#8a5a00';}
+  else if(f1>0.8){v.textContent='✓ Strong, balanced classifier (F1 = '+f(f1)+')';v.style.background='#e3f1e9';v.style.color=C.green;}
+  else{v.textContent='Precision/recall trade-off in play — inspect both.';v.style.background='var(--cloud)';v.style.color=C.navy;}
+}
+const tp_=document.getElementById('tp'),fp_=document.getElementById('fp'),fn_=document.getElementById('fn'),tn_=document.getElementById('tn');
+[tp_,fp_,fn_,tn_].forEach(e=>e.addEventListener('input',calcCM));calcCM();
+
+// ============ 5. REGRESSION METRICS ============
+function parse(s){return s.split(',').map(v=>parseFloat(v.trim())).filter(v=>!isNaN(v));}
+function calcReg(){
+  const y=parse(document.getElementById('yTrue').value), p=parse(document.getElementById('yPred').value);
+  const n=Math.min(y.length,p.length);if(n===0)return;
+  let mae=0,mse=0,mape=0,ybar=0;
+  for(let i=0;i<n;i++){const e=y[i]-p[i];mae+=Math.abs(e);mse+=e*e;if(y[i]!==0)mape+=Math.abs(e/y[i]);ybar+=y[i];}
+  mae/=n;mse/=n;mape=mape/n*100;ybar/=n;
+  let sstot=0;for(let i=0;i<n;i++)sstot+=(y[i]-ybar)**2;
+  const r2=sstot?1-(mse*n)/sstot:0;
+  document.getElementById('rMAE').textContent=mae.toFixed(2);
+  document.getElementById('rMSE').textContent=mse.toFixed(1);
+  document.getElementById('rRMSE').textContent=Math.sqrt(mse).toFixed(2);
+  document.getElementById('rMAPE').textContent=mape.toFixed(1)+'%';
+  document.getElementById('rR2').textContent=r2.toFixed(3);
+  const v=document.getElementById('regVerdict');
+  const gap=Math.sqrt(mse)-mae;
+  v.innerHTML='RMSE ('+Math.sqrt(mse).toFixed(2)+') − MAE ('+mae.toFixed(2)+') = <b>'+gap.toFixed(2)+'</b> · '+
+    (gap>mae*0.25?'large gap → outliers present':'small gap → errors are even');
+  v.style.background=gap>mae*0.25?'#fff3d6':'#e3f1e9';v.style.color=gap>mae*0.25?'#8a5a00':C.green;
+  // chart
+  const cv=document.getElementById('regCanvas');const {x,w,h}=hd(cv);
+  const pad=26,W=w-pad*2,H=h-pad*2;
+  const all=y.concat(p);const mn=Math.min(...all),mx=Math.max(...all);
+  const X=i=>pad+(n<2?W/2:i/(n-1)*W), Y=val=>pad+H-((val-mn)/((mx-mn)||1))*H;
+  x.clearRect(0,0,w,h);x.strokeStyle=C.line;x.strokeRect(pad,pad,W,H);
+  for(let i=0;i<n;i++){x.strokeStyle=C.red;x.lineWidth=1.5;x.beginPath();x.moveTo(X(i),Y(y[i]));x.lineTo(X(i),Y(p[i]));x.stroke();}
+  x.fillStyle=C.navy;for(let i=0;i<n;i++){x.beginPath();x.arc(X(i),Y(y[i]),4.5,0,7);x.fill();}
+  x.fillStyle=C.deep;for(let i=0;i<n;i++){x.beginPath();x.arc(X(i),Y(p[i]),4.5,0,7);x.fill();}
+}
+calcReg();
+window.addEventListener('resize',()=>{drawFit();if(document.getElementById('bv').classList.contains('active'))drawBV();calcReg();});
+</script>
+</body>
+</html>

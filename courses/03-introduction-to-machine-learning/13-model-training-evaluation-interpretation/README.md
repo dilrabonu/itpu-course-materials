@@ -98,26 +98,25 @@ https://www.mentimeter.com/app/home
 - Topic 4 (Model Evaluation Strategies) is a separate 60-minute lesson with its own materials; a combined slide deck covers both.
 
 Warm up:
+# 1
 
 https://www.mentimeter.com/app/presentation/ald281dc3bciy77o48s85amvffzoon9s/edit?question=h1mrymc9tgp8 
 
 
 
-Training with HTML:
-file:///C:/Users/user/Downloads/watch-a-model-train.html 
+# 2
 
 Explain training process:
 https://excalidraw.com/#json=gWXH571Ujm1QmXMSRp_Ss,w1wOR8fp4fYCATL8gOMGTA 
 
-https://excalidraw.com/
-
-Overfitting underfitting
-file:///C:/Users/user/Downloads/bias-variance-explorer.html
-
-SHAP:
-file:///C:/Users/user/Downloads/shap-explorer.html 
+# 3
+Training with HTML:
+file:///C:/Users/user/Downloads/ml_interactive_lab.html
 
 
+# 4
 Task:
 https://miro.com/app/board/uXjVHuyI1Ps=/ 
+
+PPT: sorting
 
