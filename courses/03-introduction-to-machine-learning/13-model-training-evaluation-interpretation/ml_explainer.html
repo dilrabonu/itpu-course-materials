@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Behavior — A Visual Guide</title>
+<style>
+  :root{
+    --bg:#0e1b1e; --panel:#12262a; --panel2:#163035;
+    --ink:#eaf5f2; --mute:#8fb0ad; --line:#204a4f;
+    --teal:#2bd4b5; --amber:#f2b544; --coral:#f96b6b; --violet:#b48af0;
+    --good:#4fd68a; --grid:#1c3a3f;
+    --sans:"Segoe UI",system-ui,sans-serif;
+    --serif:"Georgia",serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  /* HERO */
+  header.hero{padding:64px 0 40px;border-bottom:1px solid var(--line)}
+  .kick{color:var(--teal);font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+  h1{font-family:var(--serif);font-size:clamp(34px,6vw,60px);line-height:1.02;margin:14px 0 16px;font-weight:700}
+  h1 em{font-style:italic;color:var(--teal)}
+  .lede{color:var(--mute);font-size:18px;max-width:60ch}
+  .toc{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+  .toc a{color:var(--ink);text-decoration:none;background:var(--panel);border:1px solid var(--line);
+    padding:9px 15px;border-radius:999px;font-size:14px;font-weight:600;transition:.15s}
+  .toc a:hover{background:var(--panel2);border-color:var(--teal)}
+  .toc a b{color:var(--teal);margin-right:7px}
+
+  /* SECTIONS */
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  .snum{font-family:var(--serif);font-size:15px;color:var(--teal);font-weight:700}
+  h2{font-family:var(--serif);font-size:clamp(26px,4vw,38px);margin:6px 0 10px;font-weight:700}
+  .sub{color:var(--mute);font-size:17px;max-width:66ch;margin-bottom:26px}
+
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:22px}
+  .stage-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .stage-title{font-weight:700;font-size:15px;letter-spacing:.02em}
+  .verdict{font-size:14px;font-weight:700}
+  svg{display:block;width:100%;height:auto;background:var(--bg);border-radius:12px}
+  .ctrl{margin-top:18px}
+  .ctrl label{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);margin-bottom:8px;font-weight:600}
+  input[type=range]{width:100%;height:6px;border-radius:3px;-webkit-appearance:none;
+    background:linear-gradient(90deg,var(--coral),var(--good),var(--coral));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--ink);border:3px solid var(--teal);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--ink);
+    border:3px solid var(--teal);cursor:pointer}
+  .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-top:6px}
+
+  /* comparison table */
+  .cmp{width:100%;border-collapse:collapse;margin-top:6px;font-size:14.5px;overflow:hidden;border-radius:12px}
+  .cmp th,.cmp td{padding:13px 15px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  .cmp thead th{background:var(--panel2);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+  .cmp tbody td:first-child{color:var(--mute);width:30%;font-weight:600}
+  .cmp .c-a{color:#ffd7a8}.cmp .c-b{color:#a8e6ff}.cmp .c-c{color:#c7f5d4}
+  .cmp tr:last-child td{border-bottom:none}
+
+  /* two-def cards */
+  .defs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+  .def{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .def h4{font-size:16px;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+  .dot{width:11px;height:11px;border-radius:50%;flex:none}
+  .def p{color:var(--mute);font-size:14.5px}
+  .def .plain{color:var(--ink);font-size:14px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .def .plain b{color:var(--teal)}
+
+  /* example / code */
+  .example{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--teal);
+    border-radius:12px;padding:16px 18px;margin-top:20px;font-size:14.5px}
+  .example .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:6px}
+  code{font-family:"Consolas",monospace;background:#0a1416;color:#9fe8dc;padding:2px 6px;border-radius:5px;font-size:13.5px}
+
+  /* diagnostic strip */
+  .diag{margin-top:20px}
+  .diag .dlbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:700;margin-bottom:12px}
+  .diag-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--line)}
+  .diag-row .sig{font-family:var(--serif);font-weight:700;font-size:14px;flex:none;width:135px;color:var(--amber)}
+  .diag-row .mean{font-size:14.5px;color:var(--ink)}
+
+  footer{padding:48px 0 70px;color:var(--mute);font-size:14px;text-align:center}
+  footer b{color:var(--teal)}
+  @media(max-width:640px){.defs{grid-template-columns:1fr}.cmp td:first-child{width:40%}}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <div class="kick">Machine Learning · Visual Guide</div>
+  <h1>How models <em>get it wrong</em>,<br>and how you read them</h1>
+  <p class="lede">Four ideas that separate a model you can trust from one you can't. Drag the sliders, watch the curves react, and the difference stops being a definition and becomes something you can see.</p>
+  <nav class="toc">
+    <a href="#fit"><b>01</b> Overfitting vs Underfitting</a>
+    <a href="#bv"><b>02</b> Bias vs Variance</a>
+    <a href="#interp"><b>03</b> Interpretable vs SHAP</a>
+    <a href="#params"><b>04</b> Parameters vs Hyperparameters</a>
+  </nav>
+</div></header>
+
+<!-- ============ 01 FIT ============ -->
+<section id="fit"><div class="wrap">
+  <div class="snum">01</div>
+  <h2>Overfitting vs Underfitting</h2>
+  <p class="sub">Every model tries to draw a line through the data. Too lazy and it misses the shape. Too eager and it traces every wobble — including the noise. The sweet spot is in between.</p>
+
+  <div class="defs">
+    <div class="def"><h4><span class="dot" style="background:var(--coral)"></span>Underfitting</h4>
+      <p>The model is too simple to capture the real pattern. It's wrong even on data it has already seen.</p>
+      <p class="plain"><b>Everyday version:</b> studying only the chapter titles before an exam — you miss the actual content.</p></div>
+    <div class="def"><h4><span class="dot" style="background:var(--violet)"></span>Overfitting</h4>
+      <p>The model memorizes the training data — noise and all — so it looks perfect in practice but fails on anything new.</p>
+      <p class="plain"><b>Everyday version:</b> memorizing last year's exact exam answers, then freezing when the questions change.</p></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-title">Live: fit a curve to noisy data</div>
+      <div class="verdict" id="fitVerdict">—</div>
+    </div>
+    <svg id="fitSvg" viewBox="0 0 720 320" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="ctrl">
+      <label><span>Model complexity</span><span id="fitVal">balanced</span></label>
+      <input type="range" id="fitSlider" min="1" max="15" value="6" step="1">
+      <div class="ticks"><span>◄ too simple (underfit)</span><span>just right</span><span>too complex (overfit) ►</span></div>
+    </div>
+  </div>
+
+  <table class="cmp">
+    <thead><tr><th></th><th class="c-a">Underfitting</th><th class="c-b">Good fit</th><th class="c-c">Overfitting</th></tr></thead>
+    <tbody>
+      <tr><td>Training accuracy</td><td class="c-a">Low</td><td class="c-b">High</td><td class="c-c">Very high (≈100%)</td></tr>
+      <tr><td>Test / new-data accuracy</td><td class="c-a">Low</td><td class="c-b">High</td><td class="c-c">Low</td></tr>
+      <tr><td>Gap between the two</td><td class="c-a">Small (both bad)</td><td class="c-b">Small (both good)</td><td class="c-c">Large</td></tr>
+      <tr><td>The curve looks…</td><td class="c-a">A flat, lazy line</td><td class="c-b">Smooth, follows the trend</td><td class="c-c">Wild &amp; wiggly, hits every point</td></tr>
+      <tr><td>Fix it by…</td><td class="c-a">More features, bigger model</td><td class="c-b">Leave it — you're done</td><td class="c-c">More data, simpler model, regularization</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example"><div class="lbl">Real example</div>
+    Predicting house prices. <b>Underfit:</b> "price = a flat average" ignores size and location. <b>Good fit:</b> price rises smoothly with size and neighborhood. <b>Overfit:</b> the model insists a specific house is worth exactly $412,013 because one house in the data was — then guesses wildly on the next one.</div>
+
+  <div class="diag"><div class="dlbl">Diagnose it — what the numbers tell you</div>
+    <div class="diag-row"><div class="sig">Train 60% · Test 58%</div><div class="mean">Both low → <b>underfitting.</b> The model never learned the pattern.</div></div>
+    <div class="diag-row"><div class="sig">Train 99% · Test 62%</div><div class="mean">Huge gap → <b>overfitting.</b> Great on seen data, lost on new data.</div></div>
+    <div class="diag-row"><div class="sig">Train 92% · Test 90%</div><div class="mean">Both high, small gap → <b>good fit.</b> This is the goal.</div></div>
+  </div>
+</div></section>
+
+<!-- ============ 02 BIAS VARIANCE ============ -->
+<section id="bv"><div class="wrap">
+  <div class="snum">02</div>
+  <h2>High Bias vs High Variance</h2>
+  <p class="sub">These are the two <em>reasons</em> a model goes wrong — the deeper cause behind underfitting and overfitting. Think of a model taking the same test many times, each time trained on a slightly different sample of data. Where do the shots land?</p>
+
+  <div class="defs">
+    <div class="def"><h4><span class="dot" style="background:var(--coral)"></span>High bias</h4>
+      <p>The model makes strong, simple assumptions and sticks to them. It's consistently off — in the same direction — no matter the data. This causes underfitting.</p>
+      <p class="plain"><b>On target?</b> Tightly grouped, but far from the bullseye.</p></div>
+    <div class="def"><h4><span class="dot" style="background:var(--violet)"></span>High variance</h4>
+      <p>The model reacts to every little change in the training data. Retrain it on a new sample and it gives a very different answer. This causes overfitting.</p>
+      <p class="plain"><b>On target?</b> Scattered everywhere — sometimes near, sometimes wild.</p></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-title">Live: a dartboard for models</div>
+      <div class="verdict" id="bvVerdict">—</div>
+    </div>
+    <svg id="bvSvg" viewBox="0 0 720 300" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="ctrl">
+      <label><span>Model complexity</span><span id="bvVal">—</span></label>
+      <input type="range" id="bvSlider" min="0" max="100" value="50" step="1">
+      <div class="ticks"><span>◄ simple (high bias)</span><span>balanced</span><span>complex (high variance) ►</span></div>
+    </div>
+  </div>
+
+  <table class="cmp">
+    <thead><tr><th></th><th class="c-a">High bias</th><th class="c-c">High variance</th></tr></thead>
+    <tbody>
+      <tr><td>Root problem</td><td class="c-a">Model is too simple</td><td class="c-c">Model is too complex</td></tr>
+      <tr><td>Leads to</td><td class="c-a">Underfitting</td><td class="c-c">Overfitting</td></tr>
+      <tr><td>Assumptions</td><td class="c-a">Makes strong, wrong ones</td><td class="c-c">Makes almost none — chases noise</td></tr>
+      <tr><td>Training error</td><td class="c-a">High (poor even on training data)</td><td class="c-c">Very low</td></tr>
+      <tr><td>Sensitivity to data</td><td class="c-a">Barely reacts</td><td class="c-c">Very sensitive to small changes</td></tr>
+      <tr><td>Train–test gap</td><td class="c-a">Small</td><td class="c-c">Big</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example"><div class="lbl">Real example</div>
+    A student learning to cook. <b>High bias:</b> follows one rule — "boil everything for 10 minutes" — every dish comes out the same, mostly bad. <b>High variance:</b> copies each recipe down to the exact gram from one photo, and falls apart the moment an ingredient is missing.</div>
+
+  <div class="diag"><div class="dlbl">Diagnose it — which statement points where</div>
+    <div class="diag-row"><div class="sig">"Poor on training"</div><div class="mean">Fails even on data it studied → <b>high bias.</b></div></div>
+    <div class="diag-row"><div class="sig">"Big train-test gap"</div><div class="mean">Aces training, flops on new data → <b>high variance.</b></div></div>
+    <div class="diag-row"><div class="sig">"Very sensitive"</div><div class="mean">Answer swings with tiny data changes → <b>high variance.</b></div></div>
+  </div>
+</div></section>
+
+<!-- ============ 03 INTERPRETABILITY ============ -->
+<section id="interp"><div class="wrap">
+  <div class="snum">03</div>
+  <h2>Interpretable by Design vs Needs SHAP</h2>
+  <p class="sub">Some models you can just <em>read</em> — the logic is right there. Others are so tangled inside that you need a separate tool, like SHAP, to ask "why did you decide that?" after the fact.</p>
+
+  <div class="defs">
+    <div class="def"><h4><span class="dot" style="background:var(--good)"></span>Interpretable by design</h4>
+      <p>You can trace the decision directly. The model <em>is</em> its own explanation — weights, a short rule, a shallow tree.</p>
+      <p class="plain"><b>Like:</b> a printed recipe. Every step is visible.</p></div>
+    <div class="def"><h4><span class="dot" style="background:var(--violet)"></span>Needs SHAP (model-agnostic)</h4>
+      <p>Too many moving parts to read directly. SHAP probes the model from outside and reports how much each feature pushed the prediction.</p>
+      <p class="plain"><b>Like:</b> a dish from a secret kitchen — you taste-test to reverse-engineer what's in it.</p></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-title">Live: sort each model by how readable it is</div>
+      <div class="verdict" id="ipVerdict">click a model →</div>
+    </div>
+    <svg id="ipSvg" viewBox="0 0 720 300" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="ticks" style="margin-top:12px"><span>◄ read it directly</span><span>needs a tool like SHAP ►</span></div>
+  </div>
+
+  <table class="cmp">
+    <thead><tr><th></th><th class="c-c">Interpretable by design</th><th class="c-a">Needs SHAP</th></tr></thead>
+    <tbody>
+      <tr><td>Examples</td><td class="c-c">Linear regression, a single if-rule, a shallow tree (depth 3)</td><td class="c-a">Random forest (500 trees), deep neural network, gradient-boosted trees</td></tr>
+      <tr><td>Why</td><td class="c-c">Few parts, human-readable logic</td><td class="c-a">Thousands–millions of interacting parts</td></tr>
+      <tr><td>Explanation comes from</td><td class="c-c">The model itself</td><td class="c-a">An external tool, after training</td></tr>
+      <tr><td>Trade-off</td><td class="c-c">Easy to trust, sometimes less accurate</td><td class="c-a">Often more accurate, harder to trust</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example"><div class="lbl">Real example — a loan decision</div>
+    <b>Interpretable:</b> "Declined because income &lt; $30k" — you read the rule straight off. <b>Needs SHAP:</b> a 500-tree model declines the loan; SHAP then shows income pushed it −40%, credit history +15%, so you can finally explain it to the customer (and check it's fair).</div>
+
+  <div class="diag"><div class="dlbl">Why this matters beyond the classroom</div>
+    <div class="diag-row"><div class="sig">Trust</div><div class="mean">In healthcare, lending, and law, "the model said so" isn't enough — you must show <b>why.</b></div></div>
+    <div class="diag-row"><div class="sig">Fairness</div><div class="mean">SHAP can reveal a model leaning on features it shouldn't, like a proxy for gender or race.</div></div>
+    <div class="diag-row"><div class="sig">Debugging</div><div class="mean">If a feature dominates every prediction, that's often a data leak — SHAP surfaces it.</div></div>
+  </div>
+</div></section>
+
+<!-- ============ 04 PARAMS ============ -->
+<section id="params"><div class="wrap">
+  <div class="snum">04</div>
+  <h2>Parameters vs Hyperparameters</h2>
+  <p class="sub">One quick, clean distinction. Is the value <em>learned by the model</em> as it trains — or is it a knob <em>you set yourself</em> before training even starts?</p>
+
+  <div class="defs">
+    <div class="def"><h4><span class="dot" style="background:var(--good)"></span>Parameters</h4>
+      <p>Learned <em>by</em> the model, automatically, during training. You never set these by hand — the data shapes them.</p>
+      <p class="plain"><b>Examples:</b> weights <code>w</code>, bias <code>b</code>, every weight inside a neural network.</p></div>
+    <div class="def"><h4><span class="dot" style="background:var(--amber)"></span>Hyperparameters</h4>
+      <p>Set <em>by you</em> before training begins. They control <em>how</em> the model learns, not what it concludes.</p>
+      <p class="plain"><b>Examples:</b> learning rate, number of epochs, tree depth, number of trees.</p></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-title">Live: which knobs are yours, which are the model's?</div>
+      <div class="verdict" id="pmVerdict">sort all 7 →</div>
+    </div>
+    <svg id="pmSvg" viewBox="0 0 720 300" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="ticks" style="margin-top:12px"><span>tap a card to flip its guess</span><span id="pmScore">0 / 7 correct</span></div>
+  </div>
+
+  <table class="cmp">
+    <thead><tr><th></th><th class="c-c">Parameters</th><th class="c-a">Hyperparameters</th></tr></thead>
+    <tbody>
+      <tr><td>Who sets them</td><td class="c-c">The model (learned)</td><td class="c-a">You (chosen)</td></tr>
+      <tr><td>When</td><td class="c-c">During training</td><td class="c-a">Before training</td></tr>
+      <tr><td>They control</td><td class="c-c">What the model predicts</td><td class="c-a">How the model learns</td></tr>
+      <tr><td>Examples</td><td class="c-c">w, b, network weights</td><td class="c-a">learning rate, epochs, tree depth, #trees</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example"><div class="lbl">Real example — baking bread</div>
+    <b>Hyperparameters (you decide before):</b> oven temperature, bake time. <b>Parameters (emerge during):</b> how the crust browns and the crumb sets. You pick the settings; the loaf works out the rest.</div>
+</div></section>
+
+<footer><div class="wrap">
+  Built for the <b>Sort &amp; Match</b> concept check. Drag, argue, then commit — that's where the learning happens.
+</div></footer>
+
+<script>
+const $=s=>document.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- 01 fit ---------- */
+(function(){
+  const svg=$("#fitSvg"), W=720,H=320, padL=40,padR=20,padT=20,padB=30;
+  // fixed noisy sample from a smooth sine-ish truth
+  const pts=[]; const seed=[0.08,0.9,-0.5,0.35,-0.2,0.7,0.15,-0.6,0.55,0.0,-0.35,0.62,-0.15,0.4];
+  const N=14;
+  for(let i=0;i<N;i++){const x=i/(N-1); const truth=Math.sin(x*Math.PI*1.4); const y=truth+seed[i]*0.28; pts.push({x,y});}
+  const xs=x=>padL+x*(W-padL-padR);
+  const ymin=-1.6,ymax=1.6;
+  const ys=y=>padT+(1-(y-ymin)/(ymax-ymin))*(H-padT-padB);
+  // polyfit
+  function fit(deg){
+    const m=pts.length, X=[],Y=[];
+    for(const p of pts){const row=[];for(let d=0;d<=deg;d++)row.push(Math.pow(p.x,d));X.push(row);Y.push(p.y);}
+    // normal equations (X^T X) a = X^T Y  with tiny ridge for stability
+    const n=deg+1, A=Array.from({length:n},()=>Array(n).fill(0)), B=Array(n).fill(0);
+    for(let i=0;i<n;i++){for(let j=0;j<n;j++){let s=0;for(let k=0;k<m;k++)s+=X[k][i]*X[k][j];A[i][j]=s+(i===j?1e-6:0);}let s=0;for(let k=0;k<m;k++)s+=X[k][i]*Y[k];B[i]=s;}
+    // gauss
+    for(let i=0;i<n;i++){let p=i;for(let r=i+1;r<n;r++)if(Math.abs(A[r][i])>Math.abs(A[p][i]))p=r;[A[i],A[p]]=[A[p],A[i]];[B[i],B[p]]=[B[p],B[i]];
+      for(let r=0;r<n;r++){if(r===i)continue;const f=A[r][i]/A[i][i];for(let c=i;c<n;c++)A[r][c]-=f*A[i][c];B[r]-=f*B[i];}}
+    return B.map((b,i)=>b/A[i][i]);
+  }
+  function evalp(c,x){let s=0;for(let d=0;d<c.length;d++)s+=c[d]*Math.pow(x,d);return s;}
+  function draw(deg){
+    svg.innerHTML="";
+    // grid
+    for(let i=0;i<=4;i++){const y=padT+i*(H-padT-padB)/4;svg.appendChild(el("line",{x1:padL,y1:y,x2:W-padR,y2:y,stroke:css("--grid"),"stroke-width":1}));}
+    // truth curve (faint)
+    let td="";for(let i=0;i<=100;i++){const x=i/100;const y=Math.sin(x*Math.PI*1.4);td+=(i?"L":"M")+xs(x)+" "+ys(y)+" ";}
+    svg.appendChild(el("path",{d:td,fill:"none",stroke:css("--mute"),"stroke-width":1.5,"stroke-dasharray":"5 5",opacity:.5}));
+    // model curve
+    const c=fit(deg);let md="";for(let i=0;i<=200;i++){const x=i/200;let y=evalp(c,x);y=Math.max(ymin,Math.min(ymax,y));md+=(i?"L":"M")+xs(x)+" "+ys(y)+" ";}
+    const col=deg<=2?css("--coral"):deg>=10?css("--violet"):css("--good");
+    svg.appendChild(el("path",{d:md,fill:"none",stroke:col,"stroke-width":3.5,"stroke-linejoin":"round"}));
+    // points
+    for(const p of pts)svg.appendChild(el("circle",{cx:xs(p.x),cy:ys(p.y),r:5,fill:css("--teal"),stroke:css("--bg"),"stroke-width":2}));
+    // legend
+    svg.appendChild(el("text",{x:W-padR-4,y:padT+6,"text-anchor":"end",fill:css("--mute"),"font-size":12,"font-family":"var(--sans)"})).textContent="– – true pattern";
+    // verdict
+    let label,vc,vt;
+    if(deg<=2){label="too simple";vc=css("--coral");vt="Underfitting — misses the shape";}
+    else if(deg>=10){label="too complex";vc=css("--violet");vt="Overfitting — chasing the noise";}
+    else{label="balanced";vc=css("--good");vt="Good fit — follows the trend";}
+    $("#fitVal").textContent=label;
+    const v=$("#fitVerdict");v.textContent=vt;v.style.color=vc;
+  }
+  $("#fitSlider").addEventListener("input",e=>draw(+e.target.value));
+  draw(6);
+})();
+
+/* ---------- 02 bias-variance dartboard ---------- */
+(function(){
+  const svg=$("#bvSvg"),W=720,H=300,cx=360,cy=150;
+  const rings=[110,80,52,26];
+  function rng(seed){let s=seed;return()=>{s=(s*9301+49297)%233280;return s/233280;}}
+  function draw(t){ // t 0..100
+    svg.innerHTML="";
+    // bias = distance of cluster center from bullseye; high at low t
+    // variance = spread; high at high t
+    const bias=(1-t/100); const varc=(t/100);
+    // rings
+    const cols=[css("--panel2"),css("--line"),"#2a5a5f","#0a1416"];
+    rings.forEach((r,i)=>svg.appendChild(el("circle",{cx,cy,r,fill:i%2?css("--panel"):css("--panel2"),stroke:css("--line"),"stroke-width":1})));
+    svg.appendChild(el("circle",{cx,cy,r:9,fill:css("--teal")}));
+    // shot cluster
+    const rand=rng(42);
+    const offAng=2.1, offR=bias*115;
+    const ccx=cx+Math.cos(offAng)*offR, ccy=cy+Math.sin(offAng)*offR;
+    const spread=18+varc*95;
+    for(let i=0;i<11;i++){
+      const a=rand()*Math.PI*2, rr=(rand()**0.6)*spread;
+      const px=ccx+Math.cos(a)*rr, py=ccy+Math.sin(a)*rr;
+      svg.appendChild(el("circle",{cx:px,cy:py,r:6,fill:css("--coral"),opacity:.85,stroke:css("--bg"),"stroke-width":1.5}));
+    }
+    // labels
+    const L=(x,y,txt,c)=>{const t=el("text",{x,y,fill:c,"font-size":13,"font-weight":700,"font-family":"var(--sans)"});t.textContent=txt;svg.appendChild(t);};
+    L(20,28,"⌖ bullseye = the true answer",css("--mute"));
+    L(20,H-16,"● = the model, retrained on different data samples",css("--mute"));
+    // verdict
+    let vt,vc,lab;
+    if(t<=33){lab="high bias";vc=css("--coral");vt="High bias — consistently off, tightly grouped";}
+    else if(t>=67){lab="high variance";vc=css("--violet");vt="High variance — scattered, unpredictable";}
+    else{lab="balanced";vc=css("--good");vt="Balanced — grouped near the target";}
+    $("#bvVal").textContent=lab;
+    const v=$("#bvVerdict");v.textContent=vt;v.style.color=vc;
+  }
+  $("#bvSlider").addEventListener("input",e=>draw(+e.target.value));
+  draw(50);
+})();
+
+/* ---------- 03 interpretability scatter ---------- */
+(function(){
+  const svg=$("#ipSvg"),W=720,H=300;
+  const models=[
+    {n:"Linear regression",x:0.08,side:"L"},
+    {n:"Single rule: income > X",x:0.16,side:"L"},
+    {n:"Shallow tree (depth 3)",x:0.28,side:"L"},
+    {n:"Gradient-boosted trees",x:0.68,side:"R"},
+    {n:"Random forest (500 trees)",x:0.8,side:"R"},
+    {n:"Deep neural network",x:0.92,side:"R"},
+  ];
+  const xs=x=>60+x*(W-120);
+  let active=-1;
+  function draw(){
+    svg.innerHTML="";
+    // axis
+    svg.appendChild(el("line",{x1:60,y1:H/2,x2:W-60,y2:H/2,stroke:css("--line"),"stroke-width":2}));
+    svg.appendChild(el("line",{x1:W/2,y1:40,x2:W/2,y2:H-40,stroke:css("--line"),"stroke-width":1,"stroke-dasharray":"4 5"}));
+    // zone tints
+    svg.appendChild(el("rect",{x:60,y:40,width:W/2-60,height:H-80,fill:css("--good"),opacity:.06,rx:10}));
+    svg.appendChild(el("rect",{x:W/2,y:40,width:W/2-60,height:H-80,fill:css("--violet"),opacity:.08,rx:10}));
+    models.forEach((m,i)=>{
+      const x=xs(m.x), y=H/2 + (i%2?-1:1)*(28+ (i%3)*14) - 6;
+      const c=m.side==="L"?css("--good"):css("--violet");
+      const g=el("g",{style:"cursor:pointer"});
+      g.appendChild(el("circle",{cx:x,cy:y,r:active===i?11:8,fill:c,stroke:css("--bg"),"stroke-width":2}));
+      const t=el("text",{x,y:y-16,"text-anchor":"middle",fill:css("--ink"),"font-size":12.5,"font-weight":active===i?700:500,"font-family":"var(--sans)"});
+      t.textContent=m.n;svg.appendChild(t);
+      g.addEventListener("click",()=>{active=i;draw();
+        const v=$("#ipVerdict");
+        if(m.side==="L"){v.textContent=m.n+" → interpretable by design";v.style.color=css("--good");}
+        else{v.textContent=m.n+" → needs SHAP to explain";v.style.color=css("--violet");}
+      });
+      svg.appendChild(g);
+    });
+    const l1=el("text",{x:60,y:H-14,fill:css("--good"),"font-size":13,"font-weight":700,"font-family":"var(--sans)"});l1.textContent="◄ read the logic directly";svg.appendChild(l1);
+    const l2=el("text",{x:W-60,y:H-14,"text-anchor":"end",fill:css("--violet"),"font-size":13,"font-weight":700,"font-family":"var(--sans)"});l2.textContent="needs a tool like SHAP ►";svg.appendChild(l2);
+  }
+  draw();
+})();
+
+/* ---------- 04 params sorter ---------- */
+(function(){
+  const svg=$("#pmSvg"),W=720,H=300;
+  const cards=[
+    {n:"w (the weight)",ans:"P"},{n:"b (the bias term)",ans:"P"},{n:"neural-net weights",ans:"P"},
+    {n:"learning rate",ans:"H"},{n:"number of epochs",ans:"H"},{n:"tree depth (max_depth)",ans:"H"},{n:"number of trees",ans:"H"},
+  ];
+  cards.forEach(c=>c.guess=null);
+  const colP=css("--good"),colH=css("--amber");
+  function draw(){
+    svg.innerHTML="";
+    // two zones
+    svg.appendChild(el("rect",{x:30,y:20,width:315,height:60,rx:12,fill:colP,opacity:.12,stroke:colP,"stroke-width":1.5}));
+    svg.appendChild(el("rect",{x:375,y:20,width:315,height:60,rx:12,fill:colH,opacity:.12,stroke:colH,"stroke-width":1.5}));
+    const h1=el("text",{x:187,y:46,"text-anchor":"middle",fill:colP,"font-size":15,"font-weight":700,"font-family":"var(--sans)"});h1.textContent="PARAMETERS (learned)";svg.appendChild(h1);
+    const h1b=el("text",{x:187,y:66,"text-anchor":"middle",fill:css("--mute"),"font-size":11.5,"font-family":"var(--sans)"});h1b.textContent="the model figures these out";svg.appendChild(h1b);
+    const h2=el("text",{x:532,y:46,"text-anchor":"middle",fill:colH,"font-size":15,"font-weight":700,"font-family":"var(--sans)"});h2.textContent="HYPERPARAMETERS (you set)";svg.appendChild(h2);
+    const h2b=el("text",{x:532,y:66,"text-anchor":"middle",fill:css("--mute"),"font-size":11.5,"font-family":"var(--sans)"});h2b.textContent="you choose these first";svg.appendChild(h2b);
+    // cards grid
+    const cols=4, cw=160, ch=54, gx=18, gy=100;
+    cards.forEach((c,i)=>{
+      const r=Math.floor(i/cols), col=i%cols;
+      const x=30+col*(cw+8), y=gy+r*(ch+12);
+      const g=el("g",{style:"cursor:pointer"});
+      let fill=css("--panel2"),stroke=css("--line"),tc=css("--ink");
+      if(c.guess==="P"){fill=colP;stroke=colP;tc="#04231a";}
+      if(c.guess==="H"){fill=colH;stroke=colH;tc="#2a1c00";}
+      g.appendChild(el("rect",{x,y,width:cw,height:ch,rx:10,fill,stroke,"stroke-width":1.5,
+        ...(c.guess&&c.guess!==c.ans?{"stroke-dasharray":"5 4"}:{})}));
+      const t=el("text",{x:x+cw/2,y:y+ch/2+4,"text-anchor":"middle",fill:tc,"font-size":13,"font-weight":600,"font-family":"var(--sans)"});
+      t.textContent=c.n;g.appendChild(t);
+      // wrong marker
+      if(c.guess&&c.guess!==c.ans){const m=el("text",{x:x+cw-14,y:y+18,fill:css("--coral"),"font-size":14,"font-weight":700});m.textContent="✗";g.appendChild(m);}
+      if(c.guess&&c.guess===c.ans){const m=el("text",{x:x+cw-14,y:y+18,fill:"#04231a","font-size":14,"font-weight":700});m.textContent="✓";g.appendChild(m);}
+      g.addEventListener("click",()=>{c.guess=c.guess==null?"P":c.guess==="P"?"H":null;draw();score();});
+      svg.appendChild(g);
+    });
+    const hint=el("text",{x:W/2,y:H-8,"text-anchor":"middle",fill:css("--mute"),"font-size":11.5,"font-family":"var(--sans)"});
+    hint.textContent="tap once → Parameter · tap again → Hyperparameter · again → clear";svg.appendChild(hint);
+  }
+  function score(){
+    let ok=0,done=0;cards.forEach(c=>{if(c.guess){done++;if(c.guess===c.ans)ok++;}});
+    $("#pmScore").textContent=ok+" / 7 correct";
+    const v=$("#pmVerdict");
+    if(done<7){v.textContent=done+" of 7 sorted";v.style.color=css("--mute");}
+    else if(ok===7){v.textContent="All correct — you've got it! ✓";v.style.color=css("--good");}
+    else{v.textContent=ok+"/7 — check the ✗ cards";v.style.color=css("--coral");}
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -113,6 +113,8 @@ https://excalidraw.com/#json=gWXH571Ujm1QmXMSRp_Ss,w1wOR8fp4fYCATL8gOMGTA
 Training with HTML:
 file:///C:/Users/user/Downloads/ml_interactive_lab.html
 
+file:///C:/Users/user/Downloads/ml_explainer.html#bv -ml explainer - explain
+
 
 # 4
 Task:
