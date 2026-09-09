@@ -19,6 +19,9 @@ Each block lists the tool to open and how it is used. **No tool is used twice in
 
 ### 0 · Warm-up — diagnostic (Mentimeter)
 - **Link:** https://www.mentimeter.com/app/presentation/al4281dc3bciy77o48s85amvffzoon9s/edit?question=h1mrymc9tgp8
+
+https://www.mentimeter.com/app/home
+
 - **Use:** "Confidence + Confusion" — a Scales question rating confidence on parameters/hyperparameters, overfitting, bias-variance, and SHAP, plus a Word Cloud "what confused you most?". The results tell you which concept to spend the most time on.
 
 ### 1 · What training involves (Excalidraw + HTML)
