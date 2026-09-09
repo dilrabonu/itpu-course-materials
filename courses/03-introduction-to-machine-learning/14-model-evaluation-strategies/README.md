@@ -125,7 +125,7 @@ https://miro.com/app/board/uXjVHuyI1Ps=/
 coding
 
 Warp up
-
+Soting HTML
 Resources
 
 https://christophm.github.io/interpretable-ml-book/

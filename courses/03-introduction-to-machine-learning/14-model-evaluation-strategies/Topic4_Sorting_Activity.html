@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topic 4 — Model Evaluation Strategies · Sorting Activity</title>
+<style>
+  :root{
+    --navy:#21295C;--deep:#065A82;--teal:#1C7293;--gold:#E8A33D;--red:#C0392B;--green:#2E8B57;
+    --ink:#1B1F3B;--cloud:#EEF4F7;--line:#D6E2E8;--muted:#5A6B78;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--ink);background:#f4f8fa;padding:0 0 70px;line-height:1.5}
+  header{background:var(--navy);color:#fff;padding:26px 22px}
+  header .wrap{max-width:1120px;margin:0 auto}
+  header h1{font-size:25px;font-weight:800}
+  header p{color:#9AD1D4;margin-top:5px;font-size:14.5px}
+  main{max-width:1120px;margin:0 auto;padding:0 22px}
+  .team{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:18px 0;display:flex;
+    gap:14px;align-items:center;flex-wrap:wrap}
+  .team label{font-weight:700;font-size:14px;color:var(--navy)}
+  .team input{border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px;flex:1;min-width:180px}
+  .exercise{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin:20px 0;box-shadow:0 1px 3px rgba(33,41,92,.05)}
+  .exercise h2{font-size:20px;color:var(--navy);margin-bottom:3px}
+  .exercise .sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+  .buckets{display:grid;gap:12px;margin-bottom:18px}
+  .b5{grid-template-columns:repeat(5,1fr)}
+  .b3{grid-template-columns:repeat(3,1fr)}
+  .b2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.b5,.b3,.b2{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.b5,.b3,.b2{grid-template-columns:1fr}}
+  .bucket{border:2px dashed var(--line);border-radius:12px;min-height:130px;padding:10px;transition:.15s;background:#fcfdfe}
+  .bucket .btitle{font-size:12.5px;font-weight:800;letter-spacing:.4px;margin-bottom:3px}
+  .bucket .bhint{font-size:11px;color:var(--muted);margin-bottom:8px}
+  .bucket.over{background:#eaf6fb;border-color:var(--deep);transform:scale(1.01)}
+  .tray{display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:var(--cloud);border-radius:12px;min-height:70px}
+  .tray-label{font-size:12px;color:var(--muted);font-weight:600;width:100%;margin-bottom:2px}
+  .card{background:#FDF3B4;border:1px solid #E8D26A;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:600;
+    cursor:grab;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,.08);touch-action:none;transition:.1s}
+  .card:active{cursor:grabbing}
+  .card.dragging{opacity:.4}
+  .card.pink{background:#F6C6E0;border-color:#E89BC6}
+  .card.blue{background:#BBD4F2;border-color:#8FB6E4}
+  .card.greenc{background:#C4E8A8;border-color:#9AD177}
+  .card.correct{outline:2.5px solid var(--green);background:#DBF0CE}
+  .card.wrong{outline:2.5px solid var(--red);background:#F8D7D3}
+  .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+  .btn{border:none;border-radius:9px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+  .btn.check{background:var(--deep);color:#fff}.btn.check:hover{background:var(--navy)}
+  .btn.reset{background:#fff;color:var(--deep);border:1.5px solid var(--deep)}
+  .btn.reveal{background:var(--gold);color:#3a2a08}
+  .score{font-weight:800;font-size:15px;margin-left:auto}
+  .fb{margin-top:12px;padding:10px 14px;border-radius:9px;font-size:14px;display:none}
+  .confidence{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:22px 0}
+  .confidence h2{font-size:18px;color:var(--navy);margin-bottom:12px}
+  .cfrow{display:flex;gap:10px}
+  .cfbtn{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:14px 8px;font-weight:700;
+    font-size:14px;cursor:pointer;transition:.15s}
+  .cfbtn:hover{border-color:var(--teal)}
+  .cfbtn.sel{color:#fff}
+  .cfbtn[data-v="1"].sel{background:var(--red);border-color:var(--red)}
+  .cfbtn[data-v="2"].sel{background:var(--gold);border-color:var(--gold)}
+  .cfbtn[data-v="3"].sel{background:var(--green);border-color:var(--green)}
+  .print{margin:8px 0 0;color:var(--muted);font-size:13px}
+  @media print{.actions,.team,.btn{display:none}.exercise{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Topic 4 — Model Evaluation Strategies</h1>
+  <p>Sorting challenge · drag each card into the right bucket, then check. Work solo or as a team.</p>
+</div></header>
+
+<main>
+  <div class="team">
+    <label>Team / name:</label>
+    <input id="teamName" placeholder="e.g. Team Gradient — Dilrabo, Aziz, Nodira">
+    <span class="print">Tip: use fullscreen and share your screen in Teams. Works on phones too.</span>
+  </div>
+
+  <!-- ============ EXERCISE 1 ============ -->
+  <div class="exercise" id="ex1">
+    <h2>1 · Dataset → which cross-validation strategy?</h2>
+    <p class="sub">Which CV strategy fits each dataset best? Drag the yellow cards up.</p>
+    <div class="buckets b5">
+      <div class="bucket" data-bucket="timeseries"><div class="btitle" style="color:var(--red)">TIME-SERIES</div><div class="bhint">train past, test future</div></div>
+      <div class="bucket" data-bucket="stratified"><div class="btitle" style="color:var(--green)">STRATIFIED K-FOLD</div><div class="bhint">keeps class balance</div></div>
+      <div class="bucket" data-bucket="grouped"><div class="btitle" style="color:var(--teal)">GROUPED K-FOLD</div><div class="bhint">keeps groups together</div></div>
+      <div class="bucket" data-bucket="loo"><div class="btitle" style="color:#6C4AB6">LEAVE-ONE-OUT</div><div class="bhint">tiny datasets</div></div>
+      <div class="bucket" data-bucket="plain"><div class="btitle" style="color:var(--deep)">PLAIN K-FOLD</div><div class="bhint">standard i.i.d.</div></div>
+    </div>
+    <div class="tray" id="tray1"><span class="tray-label">Dataset cards — drag these up:</span></div>
+    <div class="actions">
+      <button class="btn check" onclick="check(1)">✓ Check my answers</button>
+      <button class="btn reveal" onclick="reveal(1)">Reveal answer key</button>
+      <button class="btn reset" onclick="resetEx(1)">↻ Reset</button>
+      <span class="score" id="score1"></span>
+    </div>
+    <div class="fb" id="fb1"></div>
+  </div>
+
+  <!-- ============ EXERCISE 2 ============ -->
+  <div class="exercise" id="ex2">
+    <h2>2 · Scenario → which metric matters most?</h2>
+    <p class="sub">Match each real situation to the metric you would optimise.</p>
+    <div class="buckets b3">
+      <div class="bucket" data-bucket="recall"><div class="btitle" style="color:var(--red)">RECALL</div><div class="bhint">don't miss positives</div></div>
+      <div class="bucket" data-bucket="precision"><div class="btitle" style="color:var(--deep)">PRECISION</div><div class="bhint">avoid false alarms</div></div>
+      <div class="bucket" data-bucket="regmetric"><div class="btitle" style="color:var(--green)">REGRESSION METRIC</div><div class="bhint">predicting a number</div></div>
+    </div>
+    <div class="tray" id="tray2"><span class="tray-label">Scenario cards — drag into a bucket:</span></div>
+    <div class="actions">
+      <button class="btn check" onclick="check(2)">✓ Check my answers</button>
+      <button class="btn reveal" onclick="reveal(2)">Reveal answer key</button>
+      <button class="btn reset" onclick="resetEx(2)">↻ Reset</button>
+      <span class="score" id="score2"></span>
+    </div>
+    <div class="fb" id="fb2"></div>
+  </div>
+
+  <!-- ============ EXERCISE 3 ============ -->
+  <div class="exercise" id="ex3">
+    <h2>3 · Classification metric vs Regression metric</h2>
+    <p class="sub">Quick two-column sort. Which family does each metric belong to?</p>
+    <div class="buckets b2">
+      <div class="bucket" data-bucket="classification"><div class="btitle" style="color:var(--deep)">CLASSIFICATION</div><div class="bhint">predicts a category</div></div>
+      <div class="bucket" data-bucket="regression"><div class="btitle" style="color:var(--green)">REGRESSION</div><div class="bhint">predicts a number</div></div>
+    </div>
+    <div class="tray" id="tray3"><span class="tray-label">Metric cards — drag into a column:</span></div>
+    <div class="actions">
+      <button class="btn check" onclick="check(3)">✓ Check my answers</button>
+      <button class="btn reveal" onclick="reveal(3)">Reveal answer key</button>
+      <button class="btn reset" onclick="resetEx(3)">↻ Reset</button>
+      <span class="score" id="score3"></span>
+    </div>
+    <div class="fb" id="fb3"></div>
+  </div>
+
+  <!-- ============ CONFIDENCE ============ -->
+  <div class="confidence">
+    <h2>After sorting: how confident is your team on Topic 4 (CV + metrics)?</h2>
+    <div class="cfrow">
+      <button class="cfbtn" data-v="1" onclick="setConf(this)">😟 Still shaky</button>
+      <button class="cfbtn" data-v="2" onclick="setConf(this)">🙂 Getting there</button>
+      <button class="cfbtn" data-v="3" onclick="setConf(this)">💪 Solid</button>
+    </div>
+  </div>
+</main>
+
+<script>
+// ---------- data: card text, colour class, and correct bucket ----------
+const DATA = {
+  1: {tray:"tray1", cls:"", cards:[
+      {t:"Stock prices over 5 years", a:"timeseries"},
+      {t:"Daily temperature readings", a:"timeseries"},
+      {t:"Dataset with only 40 samples total", a:"loo"},
+      {t:"Fraud data: 5% fraud, 95% normal", a:"stratified"},
+      {t:"Rare disease: very few positive cases", a:"stratified"},
+      {t:"Multiple visits per user / session", a:"grouped"},
+      {t:"Several rows per patient", a:"grouped"},
+      {t:"Balanced data, no time or groups", a:"plain"},
+    ]},
+  2: {tray:"tray2", cls:"", cards:[
+      {t:"Cancer screening: never miss a real case", a:"recall", c:"pink"},
+      {t:"Airport security threat detection", a:"recall", c:"pink"},
+      {t:"Spam filter: never block a real email", a:"precision", c:"blue"},
+      {t:"Flagging a customer for an expensive action", a:"precision", c:"blue"},
+      {t:"Predict house prices, error in euros", a:"regmetric", c:"greenc"},
+      {t:"Report error as a % to clients", a:"regmetric", c:"greenc"},
+      {t:"How much variance does the model explain?", a:"regmetric", c:"greenc"},
+    ]},
+  3: {tray:"tray3", cls:"", cards:[
+      {t:"Accuracy", a:"classification", c:"blue"},
+      {t:"Precision", a:"classification", c:"blue"},
+      {t:"Recall", a:"classification", c:"blue"},
+      {t:"F1 score", a:"classification", c:"blue"},
+      {t:"ROC-AUC", a:"classification", c:"blue"},
+      {t:"MSE / RMSE", a:"regression", c:"greenc"},
+      {t:"MAE", a:"regression", c:"greenc"},
+      {t:"MAPE", a:"regression", c:"greenc"},
+      {t:"R-squared", a:"regression", c:"greenc"},
+    ]},
+};
+const KEYNAMES = {
+  timeseries:"Time-Series", stratified:"Stratified K-Fold", grouped:"Grouped K-Fold",
+  loo:"Leave-One-Out", plain:"Plain K-Fold", recall:"Recall", precision:"Precision",
+  regmetric:"Regression metric", classification:"Classification", regression:"Regression"
+};
+
+let idc = 0;
+function makeCard(card, ex){
+  const el = document.createElement("div");
+  el.className = "card" + (card.c ? " "+card.c : "");
+  el.textContent = card.t;
+  el.draggable = true;
+  el.dataset.answer = card.a;
+  el.dataset.ex = ex;
+  el.id = "card"+(idc++);
+  // desktop drag
+  el.addEventListener("dragstart", e=>{e.dataTransfer.setData("text", el.id); el.classList.add("dragging");});
+  el.addEventListener("dragend", ()=>el.classList.remove("dragging"));
+  // touch drag (phones/tablets)
+  addTouch(el);
+  return el;
+}
+
+function build(ex){
+  const d = DATA[ex];
+  const tray = document.getElementById(d.tray);
+  // shuffle for variety
+  const shuffled = d.cards.slice().sort(()=>Math.random()-0.5);
+  shuffled.forEach(c=> tray.appendChild(makeCard(c, ex)));
+}
+[1,2,3].forEach(build);
+
+// ---------- drop targets: every bucket AND the trays ----------
+function setupDrop(zone){
+  zone.addEventListener("dragover", e=>{e.preventDefault(); zone.classList.add("over");});
+  zone.addEventListener("dragleave", ()=>zone.classList.remove("over"));
+  zone.addEventListener("drop", e=>{
+    e.preventDefault(); zone.classList.remove("over");
+    const id = e.dataTransfer.getData("text");
+    const card = document.getElementById(id);
+    if(card){ card.classList.remove("correct","wrong"); zone.appendChild(card); }
+  });
+}
+document.querySelectorAll(".bucket, .tray").forEach(setupDrop);
+
+// ---------- touch support ----------
+let dragEl=null, ghost=null;
+function addTouch(el){
+  el.addEventListener("touchstart", e=>{
+    dragEl = el; el.classList.add("dragging");
+    ghost = el.cloneNode(true); ghost.style.position="fixed"; ghost.style.zIndex=9999;
+    ghost.style.opacity=".85"; ghost.style.pointerEvents="none"; ghost.style.width=el.offsetWidth+"px";
+    document.body.appendChild(ghost); moveGhost(e.touches[0]);
+  }, {passive:true});
+  el.addEventListener("touchmove", e=>{
+    if(!dragEl) return; moveGhost(e.touches[0]);
+    const t=e.touches[0]; const under=document.elementFromPoint(t.clientX,t.clientY);
+    document.querySelectorAll(".bucket").forEach(b=>b.classList.remove("over"));
+    const z = under && under.closest(".bucket"); if(z) z.classList.add("over");
+  }, {passive:true});
+  el.addEventListener("touchend", e=>{
+    if(!dragEl) return;
+    const t=e.changedTouches[0]; const under=document.elementFromPoint(t.clientX,t.clientY);
+    const z = under && (under.closest(".bucket")||under.closest(".tray"));
+    if(z){ dragEl.classList.remove("correct","wrong"); z.appendChild(dragEl); }
+    document.querySelectorAll(".bucket").forEach(b=>b.classList.remove("over"));
+    dragEl.classList.remove("dragging"); if(ghost) ghost.remove(); ghost=null; dragEl=null;
+  });
+}
+function moveGhost(t){ if(ghost){ ghost.style.left=(t.clientX-30)+"px"; ghost.style.top=(t.clientY-20)+"px"; } }
+
+// ---------- check ----------
+function check(ex){
+  const ex_el = document.getElementById("ex"+ex);
+  const buckets = ex_el.querySelectorAll(".bucket");
+  let total=0, correct=0, placed=0;
+  ex_el.querySelectorAll(".card").forEach(c=>{
+    total++;
+    c.classList.remove("correct","wrong");
+    const inBucket = c.closest(".bucket");
+    if(inBucket){
+      placed++;
+      if(inBucket.dataset.bucket === c.dataset.answer){correct++; c.classList.add("correct");}
+      else c.classList.add("wrong");
+    }
+  });
+  document.getElementById("score"+ex).textContent = correct+" / "+total+" correct";
+  const fb = document.getElementById("fb"+ex);
+  fb.style.display="block";
+  if(placed<total){ fb.style.background="#fff3d6"; fb.style.color="#8a5a00";
+    fb.textContent="⚠ "+ (total-placed) +" card(s) still in the tray — place them all, then check again."; }
+  else if(correct===total){ fb.style.background="#e3f1e9"; fb.style.color="var(--green)";
+    fb.textContent="🎉 Perfect! Every card is in the right bucket."; }
+  else { fb.style.background="#fdece9"; fb.style.color="var(--red)";
+    fb.textContent="Red cards are in the wrong bucket. Discuss as a team and move them — then check again."; }
+}
+function reveal(ex){
+  const fb = document.getElementById("fb"+ex);
+  const lines = DATA[ex].cards.map(c=>`• ${c.t} → <b>${KEYNAMES[c.a]}</b>`);
+  fb.style.display="block"; fb.style.background="var(--cloud)"; fb.style.color="var(--ink)";
+  fb.innerHTML = "<b>Answer key</b><br>"+lines.join("<br>");
+}
+function resetEx(ex){
+  const d=DATA[ex]; const ex_el=document.getElementById("ex"+ex);
+  const tray=document.getElementById(d.tray);
+  ex_el.querySelectorAll(".card").forEach(c=>{c.classList.remove("correct","wrong"); tray.appendChild(c);});
+  document.getElementById("score"+ex).textContent="";
+  document.getElementById("fb"+ex).style.display="none";
+}
+function setConf(btn){
+  btn.parentElement.querySelectorAll(".cfbtn").forEach(b=>b.classList.remove("sel"));
+  btn.classList.add("sel");
+}
+</script>
+</body>
+</html>
