@@ -98,13 +98,13 @@ Each block lists the tool to open and how it is used. **No tool is used twice in
 - The coding notebook is shared with Topic 3 — students continue in the same file, so evaluation flows straight out of training.
 - Topic 3 (Model Training, Evaluation & Interpretation) is the preceding 60-minute lesson with its own materials; the combined slide deck covers both.
 
-# 6
+# 5
 Kahoot - warm up
 https://create.kahoot.it/share/topic-4-warm-up/8aa29cfc-6d57-4ffa-8598-978da7fa691e 
 
 https://create.kahoot.it/my-library/kahoots/a73fb07a-b955-498b-9531-649b2442a1cf 
 
-# 7
+
 Strategies Excalidraw
 
 https://excalidraw.com/#json=xfKwsjY_kcfkwwnTvmNLz,jG4BMyB2rFSiWHCcMiri4w 
@@ -114,16 +114,18 @@ HTML:
 Cross validation
 file:///C:/Users/user/Downloads/cross-validation-visualizer.html 
 
-
+# 6
 Metrics Wooclap
 https://app.wooclap.com/events/GBNJUGS/live-session 
 
-Miro sort
+# 7
+Miro sort + html upload file individually Topic 4 sorting html+ screenshot
 
 https://miro.com/app/board/uXjVHuyI1Ps=/  
 
+# 8
 coding
-
+MY live coding 
 Warp up
 Soting HTML
 Resources

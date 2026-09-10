@@ -111,6 +111,9 @@ https://excalidraw.com/#json=gWXH571Ujm1QmXMSRp_Ss,w1wOR8fp4fYCATL8gOMGTA
 
 # 3
 Training with HTML:
+
+https://excalidraw.com/#json=yHouzlEKGre7jHpba67ly,0nBDmiF_oUwbfNbrZwChcg 
+
 file:///C:/Users/user/Downloads/ml_interactive_lab.html
 
 file:///C:/Users/user/Downloads/ml_explainer.html#bv -ml explainer - explain
