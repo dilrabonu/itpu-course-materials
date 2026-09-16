@@ -50,4 +50,11 @@ Explaination:
 
 https://excalidraw.com/#json=ec71iTwsnbuZojnPpiCQQ,rTIz8qCopkvTmnUUXqZsbA
 
+Linear Algebra:
+https://excalidraw.com/#json=vXQkO0WoPsU05dgD2sBQh,D2FIYl6ksDnswJy1IHvGlA 
+
 https://excalidraw.com/#json=2-aAneCgWAJ6878Zfg9Ef,gRFmHkrjK8BMUrdqIk77jA 
+
+
+
+https://excalidraw.com/#json=FXVhBQEoPyNuN2rJio4tx,JJKZLeOehyepItFsJ_rB5g
