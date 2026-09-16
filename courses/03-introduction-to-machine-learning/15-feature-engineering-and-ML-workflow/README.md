@@ -22,3 +22,5 @@ https://excalidraw.com/#json=YeKu9vjF3oNyJdKSNjFUa,G8erFHefBXed_iWewja7EA
 https://excalidraw.com/#json=ov5xPg1ndAFkayxCqDUAP,R3KnW1-16mFrZWEX4iGbvA
 
 https://excalidraw.com/#json=HMLCv8VJljIx05FR7ZQ62,FzWQ2vjq_NZjopLpa_MK9A
+
+https://excalidraw.com/#json=PLidS1XrPh4mrGSamn_Od,MeXTrQnePG8VcW6viKFMJg
