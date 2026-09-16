@@ -5,3 +5,7 @@ https://www.mentimeter.com/app/presentation/al73rdzyu1oivuw359adppcokv5b27er/edi
 
 Kahoot Topic 5-6
 https://create.kahoot.it/my-library/kahoots/a73fb07a-b955-498b-9531-649b2442a1cf
+
+Explanation:
+https://excalidraw.com/#json=snxOsB4U4q8kVRzhaHwNn,yqyaP7AMyxmMbYZh9fFqHw
+
