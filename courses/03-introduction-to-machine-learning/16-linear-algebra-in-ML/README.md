@@ -45,3 +45,7 @@ What's still fuzzy? This is what I'll revisit at the start of next session.
 
 Q7 — Confidence check (Rating, 1–5 stars, required)
 How confident do you feel building and understanding a feature matrix now? (1 = lost, 5 = solid)
+
+Explaination:
+
+https://excalidraw.com/#json=ec71iTwsnbuZojnPpiCQQ,rTIz8qCopkvTmnUUXqZsbA
