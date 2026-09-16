@@ -53,7 +53,7 @@ https://excalidraw.com/#json=ec71iTwsnbuZojnPpiCQQ,rTIz8qCopkvTmnUUXqZsbA
 Linear Algebra:
 https://excalidraw.com/#json=vXQkO0WoPsU05dgD2sBQh,D2FIYl6ksDnswJy1IHvGlA 
 
-https://excalidraw.com/#json=14J-yxMRiLQXlWMJ3dQ-V,qMGeERGHq-nLUusHgn7Egw
+https://excalidraw.com/#json=AzHKgrLZ2jUq-u6fXGgO1,VeSv5gLwDiyouCuM82yt7g
 
 
 https://excalidraw.com/#json=2-aAneCgWAJ6878Zfg9Ef,gRFmHkrjK8BMUrdqIk77jA 
@@ -61,3 +61,5 @@ https://excalidraw.com/#json=2-aAneCgWAJ6878Zfg9Ef,gRFmHkrjK8BMUrdqIk77jA
 
 
 https://excalidraw.com/#json=FXVhBQEoPyNuN2rJio4tx,JJKZLeOehyepItFsJ_rB5g
+
+https://excalidraw.com/#json=M7lChbms3dQ3uAtbHSXQn,NJqqfaV7VpCH1-XdCaXbeQ
